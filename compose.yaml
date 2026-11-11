@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: aiplatform
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: aiplatform
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U aiplatform"]
+      interval: 5s
+      retries: 12
+    networks: [private]
+  opa:
+    image: openpolicyagent/opa:0.70.0
+    command: ["run","--server","--addr=0.0.0.0:8181","/policy/aiplatform.rego"]
+    volumes:
+      - ./policy:/policy:ro
+    networks: [private]
+  api:
+    build: .
+    command: ["uvicorn","enterprise.api:app","--host","0.0.0.0","--port","8000"]
+    ports: ["127.0.0.1:8000:8000"]
+    environment: &common
+      DATABASE_URL: postgresql://aiplatform:${POSTGRES_PASSWORD}@postgres:5432/aiplatform
+      OPA_URL: http://opa:8181/v1/data/aiplatform/allow
+      OIDC_ISSUER: ${OIDC_ISSUER:?Set OIDC_ISSUER}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:?Set OIDC_JWKS_URL}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-aiplatform-api}
+      MCP_URL: http://mcp:8002/mcp
+      A2A_URL: http://a2a:8003/
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:-}
+    depends_on:
+      postgres: {condition: service_healthy}
+      opa: {condition: service_started}
+    networks: [private]
+  mcp:
+    build: .
+    command: ["python","-m","enterprise.mcp_server"]
+    environment: *common
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [private]
+  a2a:
+    build: .
+    command: ["python","-m","enterprise.a2a_server"]
+    environment: *common
+    networks: [private]
+  worker:
+    build: .
+    command: ["python","-m","enterprise.worker"]
+    environment: *common
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [private]
+  streamlit:
+    build: .
+    ports: ["127.0.0.1:8501:8501"]
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+    networks: [private]
+volumes:
+  pgdata:
+networks:
+  private:
