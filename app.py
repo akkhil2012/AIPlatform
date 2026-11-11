@@ -19,7 +19,7 @@ with st.sidebar:
     budget=st.slider("Maximum LLM calls",1,12,6)
     st.info("Synthetic demo data only. Real actions are disabled. This is not a production security boundary.")
 settings={"api_key":key or None,"model":model,"base_url":base_url}
-tabs=st.tabs(["Executive demo","58 topic labs","Policy and identity","Memory and RAG","Audit and recovery","Architecture"])
+tabs=st.tabs(["Executive demo","58 topic labs","Policy and identity","Memory and RAG","Audit and recovery","Architecture","Enterprise integrations"])
 def context():
     return RuntimeContext(tenant=tenant,scopes=scopes,max_llm_calls=budget)
 def render(result):
@@ -118,3 +118,33 @@ Harness / Supervisor ──► LLM Gateway (OpenAI-compatible HTTPS)
     st.markdown("""**Implemented:** real LLM API calls, model-based routing/planning/reflection, bounded tool-like specialist invocation, deterministic authorization, synthetic tenant-filtered retrieval, trace collection, and SQLite checkpoint demonstration.
 
 **Not implemented:** real MCP/A2A transport, production authentication, distributed queues, persistent secret vault, vector database, real business integrations, automated model evaluation, and cloud deployment. The 58 curriculum entries reuse shared building blocks; they are not 58 independently deployed services.""")
+
+with tabs[6]:
+    st.subheader("Enterprise integration services")
+    st.caption("Calls the containerized FastAPI gateway with an externally issued OIDC access token. Token is not stored by this app.")
+    gateway=st.text_input("Gateway URL",value="http://api:8000")
+    access=st.text_input("OIDC bearer token",type="password",key="enterprise_access")
+    question=st.text_input("Integration question",value="Summarize campaign evidence",key="integration_q")
+    action=st.selectbox("Remote integration",["MCP knowledge tool","Remote A2A specialist","Postgres pgvector RAG","Submit durable LLM job","Get job status"])
+    jobid=st.text_input("Job ID for status check",value="")
+    idem=st.text_input("Idempotency key",value=str(uuid.uuid4()),help="Reuse the same key to demonstrate deduplicated job submission")
+    if st.button("Call authenticated gateway"):
+        import httpx
+        if not access:
+            st.error("Provide a valid OIDC access token issued by your configured provider.")
+        else:
+            endpoints={"MCP knowledge tool":("POST","/v1/mcp/search",{"text":question}),
+                       "Remote A2A specialist":("POST","/v1/a2a/risk",{"text":question}),
+                       "Postgres pgvector RAG":("POST","/v1/rag",{"text":question}),
+                       "Submit durable LLM job":("POST","/v1/jobs",{"question":question}),
+                       "Get job status":("GET","/v1/jobs/"+jobid,None)}
+            method,path,payload=endpoints[action]
+            headers={"Authorization":"Bearer "+access}
+            if action=="Submit durable LLM job":headers["Idempotency-Key"]=idem
+            try:
+                with httpx.Client(timeout=45.0) as client:
+                    response=client.request(method,gateway.rstrip("/")+path,json=payload,headers=headers)
+                st.write("HTTP status:",response.status_code)
+                st.json(response.json())
+            except Exception as exc:
+                st.error(f"Gateway request failed: {type(exc).__name__}: {exc}")
