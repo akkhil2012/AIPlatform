@@ -40,8 +40,8 @@ def claim_job(max_attempts=3):
     with connection() as db:
         return db.execute("""WITH candidate AS (
             SELECT id FROM jobs
-            WHERE (status='queued' AND available_at<=now())
-               OR (status='running' AND lease_until<now())
+            WHERE ((status='queued' AND available_at<=now())
+               OR (status='running' AND lease_until<now()))
             AND attempts < %s
             ORDER BY created_at
             FOR UPDATE SKIP LOCKED LIMIT 1
