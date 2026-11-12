@@ -1,0 +1,121 @@
+Yes—plan this as a **30-day hands-on sprint**, with the 28 demos grouped into progressively larger exercises.
+
+Budget **3–4 focused hours per day**, with up to 5 hours on integration days. That is roughly 100–120 hours. At this pace, aim for working learning demos with clear failure tests; production hardening will take longer.
+
+Keep **IT procurement and vendor onboarding** as the shared scenario. Use real LLM calls, replaceable supplier data, and clearly labeled sample policies.
+
+## Daily working pattern
+
+Use the same routine throughout the month:
+
+| Activity | Typical time |
+|---|---:|
+| Define the scenario, boundary, and expected behavior | 30 minutes |
+| Write the core Python implementation yourself | 90 minutes |
+| Exercise a failure and add meaningful verification | 45 minutes |
+| Use an agent for review, supporting code, and documentation | 30–45 minutes |
+
+Start with CLI interfaces. Add a shared Streamlit demonstration interface during integration.
+
+## Week 1 — Build a single agent you understand
+
+**Goal:** Understand the model/tool boundary, runtime control, and the difference between an agent and a workflow.
+
+| Day | What you design and build | Evidence of completion |
+|---|---|---|
+| **1** | **Repository and platform blueprint.** Define buyer, sourcing analyst, finance reviewer, and approver responsibilities. Draw the proposed system and identify its trust boundaries. | README, component diagram, sample buyer briefs, fictional supplier CSV, and a list of actions the system must never perform automatically. |
+| **2** | **Chatbot versus agent.** Call the LLM API and extract a typed purchasing brief. Ask for missing requirements. | A complete request becomes structured data; an incomplete request produces a clarification. |
+| **3** | **Tool-calling loop.** Add supplier search and exact cost calculation as local Python tools. | The model selects tools; Python validates arguments and calculates costs. Changing the CSV changes the evidence. |
+| **4** | **Controlled runtime.** Add request IDs, lifecycle states, tool allowlists, safe failures, and execution limits. Separate planning output from execution authority. | Invalid calls never execute; a repeated tool loop stops at its limit. |
+| **5** | **Control plane versus execution plane.** Store versioned model, tool, and policy configuration. Bind each request to a configuration version. | Publishing a new configuration does not silently change an existing request. |
+| **6** | **Workflow versus autonomous planning.** Implement the same purchasing task as a fixed workflow and a bounded agent. Design a multi-agent alternative on paper. | Compare correctness, tool calls, latency, cost, and complexity. Explain which design you would choose. |
+| **7** | **Consolidation and failure lab.** Review the code, simplify it, and trace three requests manually. | Recorded successful, invalid-input, and provider-failure runs. No unexplained code in the core loop. |
+
+**Coverage:** Demos 1–4; task-01–06, task-08, task-11, task-16.
+
+## Week 2 — Connect tools and independent agents
+
+**Goal:** Make MCP and A2A concrete through actual protocol exchanges.
+
+| Day | What you design and build | Evidence of completion |
+|---|---|---|
+| **8** | **MCP fundamentals.** Move supplier tools into an MCP server using the official SDK and stdio transport. | Inspect initialization, tool discovery, and actual tool invocation through an MCP client. |
+| **9** | **Networked MCP and gateway controls.** Add Streamable HTTP and a minimal gateway boundary with authenticated access, tool filtering, and invocation authorization. | An unauthorized caller cannot discover or invoke restricted tools. |
+| **10** | **Contracts and compatibility.** Version tool schemas and define typed business payloads for research requests and results. | Valid payloads work; malformed or incompatible payloads are rejected explicitly. |
+| **11** | **A2A specialist.** Expose a sourcing agent through the official A2A SDK. Discover its Agent Card and delegate a research task. | The coordinator receives a task artifact over HTTP without importing specialist implementation code. |
+| **12** | **Identity and two-level authorization.** Carry caller/delegation context across agents and tools. Add an idempotent sandbox requisition operation. | A privileged specialist cannot act for an unauthorized caller; retries do not duplicate a requisition. |
+| **13** | **Supervisor and registry.** Add sourcing and finance capabilities. Exercise sequential and parallel execution; diagram the hierarchical extension. | Show capability selection, dependency ordering, and the latency difference between sequential and parallel work. |
+| **14** | **Integration and protocol walkthrough.** Connect buyer → coordinator → specialist → MCP tools. Add a basic Streamlit view and protocol inspector. | Demonstrate the complete path, then stop the specialist or MCP server and explain the resulting failure. |
+
+**Coverage:** Demos 5–9; task-07, task-18–19, task-25, task-28–35, task-37.
+
+For Day 9, keep the gateway small: one identity mechanism, a few tools, and explicit enforcement. You are demonstrating the boundary, not building a general enterprise gateway.
+
+## Week 3 — Orchestrate, remember, and recover
+
+**Goal:** Handle collaboration, persistent state, and grounded knowledge.
+
+| Day | What you design and build | Evidence of completion |
+|---|---|---|
+| **15** | **Planner–executor and reflection.** Define a typed plan, constrained executor, and bounded reviewer. | An invalid plan is rejected; a deliberately unsupported recommendation triggers an evidence-based revision. |
+| **16** | **Controlled collaboration.** Add hop limits, partial-result handling, and role-specific context payloads. | Stop an agent loop, preserve useful partial work, and show that finance never receives excluded supplier documents. |
+| **17** | **Sessions and memory.** Separate conversation history, current purchasing brief, and retained preferences. | A buyer can revise quantity without corrupting the original history; another session cannot access it. |
+| **18** | **Durable state and checkpointing.** Persist workflow state and approval waits in a database. | Restart a worker and resume the workflow without repeating a completed write. |
+| **19** | **Context limits and shared memory.** Add a token budget, structured summaries, and versioned shared case updates. | Critical constraints survive summarization; conflicting updates are detected rather than silently overwritten. |
+| **20** | **Tenant-aware, current RAG.** Retrieve procurement policies with citations, tenant filters, versions, and effective dates. | An outdated policy stops governing new answers, and another tenant’s policy is inaccessible. |
+| **21** | **Retrieval comparison and migration lab.** Compare vector retrieval with a small supplier relationship graph. Build a second embedding index and switch through a versioned alias. | Show one relationship question better served by graph traversal, plus index evaluation, rollback, and isolation checks. |
+
+**Coverage:** Demos 10–19; task-10, task-20–23, task-26–27, task-38–48.
+
+Day 21 is a bounded experiment. A small graph and two small indexes are sufficient; a general knowledge-graph platform is outside the month’s scope.
+
+## Week 4 — Enforce security and accountability
+
+**Goal:** Make authority, approvals, and operational evidence explicit.
+
+| Day | What you design and build | Evidence of completion |
+|---|---|---|
+| **22** | **Least privilege, least agency, and zero trust.** Restrict each agent’s tools, credentials, scope, and permitted autonomy. | A research agent cannot submit a purchase, regardless of its prompt. |
+| **23** | **Identity chain and policy enforcement.** Add explicit PDP/PEP boundaries and strengthen tenant isolation. | Forged tenant context, expired delegation, and unauthorized account access fail at the execution boundary. |
+| **24** | **Hostile inputs and secrets.** Test malicious documents/tool responses, credential rotation, and redaction. | Document which attacks are blocked, which remain unresolved, and whether secrets appear anywhere in model input or logs. |
+| **25** | **Human approval and consequential changes.** Bind approval to an exact purchase or sandbox deployment payload. | Changing supplier, amount, or deployment version invalidates the approval. |
+| **26** | **Audit and accountability.** Correlate evidence, policy decisions, approvals, versions, and side effects. Add a small tamper-evidence demonstration. | Reconstruct one action end to end and detect an altered audit record under documented trust assumptions. |
+| **27** | **Budgets and graceful degradation.** Add cross-agent limits, bounded retries, timeout handling, and write reconciliation. | Rate limits or ambiguous write outcomes produce controlled recovery—not duplicate writes or fabricated success. |
+| **28** | **Evaluation and deployment gates.** Run versioned cases and block a deliberately regressed prompt or configuration. | Produce a release report covering quality, policy, isolation, recovery, latency, and cost, with a rollback demonstration. |
+
+**Coverage:** Demos 20–28; task-09, task-12–17, task-24, task-36, task-49–58, with earlier deployment and orchestration topics revisited.
+
+## Days 29–30 — Consolidate and choose the capstone
+
+| Day | Work | Deliverable |
+|---|---|---|
+| **29** | **Rebuild and explain.** Recreate the smallest LLM → A2A → MCP path without asking an agent to generate the core. Run several failure drills. | An architecture walkthrough, protocol trace, and a list of concepts you can explain confidently versus those needing more practice. |
+| **30** | **Capstone selection.** Compare two or three candidate problems against the evidence collected during the month. | A short proposal defining the business problem, necessary components, success measures, risks, and deliberately excluded features. |
+
+Choose a capstone because it needs particular capabilities. It does not need every component built during the month.
+
+## Control the scope so the month stays achievable
+
+Use these implementation limits:
+
+- **Two LLM agents initially**, adding a third only for an orchestration exercise.
+- **Three or four business tools**, including at most one sandbox write.
+- **One database** for learning persistence and recovery.
+- **Two tenants** to exercise isolation.
+- **A small policy collection**, rather than a large ingestion pipeline.
+- **A growing evaluation set**, starting with roughly 10 cases and reaching 30–50 useful cases.
+- **One shared UI**, rather than a separate polished interface for every demo.
+
+Keep each demo independently runnable, but reuse supplier data and evaluation cases. Avoid building a shared agent framework during the first two weeks.
+
+## How to use coding agents during the sprint
+
+**Week 1:** Write the core yourself. Ask agents to explain SDK behavior, review your work, and suggest failure cases.
+
+**Week 2:** Write the first MCP and A2A integrations yourself. Delegate UI, packaging, and repetitive adapters.
+
+**Week 3:** Own state models, recovery semantics, and retrieval acceptance criteria. Delegate supporting code after those decisions are clear.
+
+**Week 4:** Own permissions, approval semantics, and release criteria. Use agents to challenge assumptions and implement additional tests; verify their conclusions yourself.
+
+Your final deliverable should be **a runnable learning repository, an architecture narrative, and failure evidence**. Completing those will give you a much stronger basis for selecting a capstone than producing 28 polished happy-path applications.
