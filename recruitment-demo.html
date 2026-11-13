@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Screening and interview preparation | AI for Recruiters</title>
+<style>
+:root {color-scheme:light;--ink:#162539;--muted:#44556b;--accent:#145849;--line:#cbd8dd}
+*{box-sizing:border-box}body{margin:0;background:#eef3f4;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{width:min(940px,94vw);margin:2rem auto 4rem}header,section,details{background:white;border:1px solid var(--line);border-radius:14px;padding:1.3rem;margin:.85rem 0}
+header{border-top:5px solid var(--accent)}h1{line-height:1.15;margin:.25rem 0}h2,h3{margin:.2rem 0 .7rem}p{margin:.45rem 0 .8rem}
+small,.muted{color:var(--muted)}label{display:block;font-weight:600;margin:.55rem 0}input,select,textarea,button{font:inherit}
+input:not([type=checkbox]),textarea,select{width:100%;padding:.48rem;border:1px solid #8396a5;border-radius:6px;background:white;color:var(--ink)}
+input[type=checkbox]{margin-right:.45rem}textarea{min-height:90px}button{background:var(--accent);color:white;border:0;border-radius:7px;padding:.5rem .85rem;cursor:pointer;margin:.2rem .2rem .35rem 0}
+button:disabled{opacity:.55;cursor:default}:focus-visible{outline:3px solid #246bdb;outline-offset:3px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff5f4;padding:.9rem;border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:560px}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--line);vertical-align:top}
+.scroll{overflow:auto}.grid{display:grid;gap:.65rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+summary{cursor:pointer;font-weight:650}
+</style>
+<main>
+<header><small>AI FOR RECRUITERS · 35–43 min</small><h1>Screening and interview preparation</h1>
+<p>ABC Technologies · Senior Java Developer · Hyderabad · Two openings</p>
+<p>Generate the core questions, enter fictional notes, then identify evidence that needs a follow-up.</p></header>
+<section id="demo" aria-label="Live activity"></section>
+<details><summary>Copy-ready prompt for ChatGPT</summary>
+<p class="muted">The local demo uses fictional data and runs offline. Paste this prompt into ChatGPT separately to compare with a live generative AI response.</p>
+<textarea id="prompt" aria-label="Workshop prompt" readonly></textarea>
+<button id="copy">Copy prompt</button><span id="copy-status" role="status"></span>
+</details>
+</main>
+<script>
+const data = {"job": {"company": "ABC Technologies", "title": "Senior Java Developer", "location": "Hyderabad", "years": 5, "openings": 2, "required": ["Java", "Spring Boot", "REST APIs", "SQL"], "preferred": ["AWS", "Docker", "Kubernetes"]}, "candidates": [["A", 7, "Built Java and Spring Boot services with REST APIs and SQL. Deployed on AWS using Docker."], ["E", 5, "Implemented Java, Spring Boot, RESTful services and PostgreSQL. Used Kubernetes."], ["B", 6, "Developed Java services with SpringBoot, REST API design and SQL."], ["C", 4, "Built Java, Spring Boot, REST APIs and SQL features. Used Docker."], ["D", 8, "Developed Python services and administered SQL databases. Used AWS and Kubernetes."]], "topic": 5, "prompt": "Use this fictional role only: ABC Technologies, Senior Java Developer, Hyderabad, 2 openings, 5+ years, Java, Spring Boot, REST APIs and SQL required. AWS, Docker and Kubernetes preferred. Look for evidence of production development, problem-solving and communication. Mark unknowns and use placeholders for missing facts. Create a 20-minute structured interview with three technical questions, two scenarios, one collaboration question and an evidence-based 1\u20135 rubric. Use the same core questions for all candidates."};
+// Shared
+const get = id => document.getElementById(id);
+const demo = get("demo");
+const job = data.job;
+const set = (id, value) => { get(id).textContent = value; };
+const split = value => [...new Set(value.split(",").map(item => item.trim()).filter(Boolean))];
+get("prompt").value = data.prompt;
+get("copy").onclick = async () => {
+    try {
+        await navigator.clipboard.writeText(get("prompt").value);
+        set("copy-status", "Copied");
+    } catch {
+        get("prompt").select();
+        set("copy-status", "Prompt selected. Use Ctrl+C or Command+C.");
+    }
+};
+// Topic 5
+demo.innerHTML = `<h2>Structured 20-minute interview</h2>
+<p>Introduction 2 min · Technical 7 min · Scenarios 6 min · Collaboration 3 min · Candidate questions 2 min</p>
+<ol><li>How would you investigate a Java service with rising memory usage?</li>
+<li>How do you test a Spring Boot service with a database dependency?</li>
+<li>How would you design and validate a REST API that queries SQL?</li>
+<li>A production endpoint is slow. How would you isolate the bottleneck?</li>
+<li>A deployment causes intermittent errors. How would you investigate and communicate next steps?</li>
+<li>Describe a technical disagreement and how you worked with colleagues to resolve it.</li></ol>
+<p><strong>Evidence rubric</strong> · 1 no concrete example after a follow-up · 2 partial example · 3 clear approach · 4 explains trade-offs and validation · 5 explains trade-offs, validation and measurable outcomes. Record unanswered questions as unverified.</p>
+<label>Fictional evidence from the interview<textarea id="notes">Described adding a SQL index. No before-and-after measurements recorded.</textarea></label>
+<label>Competency needing more evidence<select id="competency"><option>Production troubleshooting</option><option>Java and Spring Boot</option><option>Collaboration</option></select></label>
+<button id="prepare">Prepare follow-up</button><pre id="followup" aria-live="polite"></pre>`;
+const followups = {
+    "Production troubleshooting":"What did you measure before and after the change?",
+    "Java and Spring Boot":"Which part did you implement, and how did you test it?",
+    "Collaboration":"What did you personally do, and what feedback did the team give?"
+};
+get("prepare").onclick = () => {
+    const notes = get("notes").value.trim() || "No evidence recorded.";
+    set("followup", "Recorded notes\n" + notes + "\n\nFollow-up for " + get("competency").value + "\n" + followups[get("competency").value]);
+};
+</script>
