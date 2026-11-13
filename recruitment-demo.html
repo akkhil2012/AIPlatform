@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Candidate communication and selection | AI for Recruiters</title>
+<style>
+:root {color-scheme:light;--ink:#162539;--muted:#44556b;--accent:#145849;--line:#cbd8dd}
+*{box-sizing:border-box}body{margin:0;background:#eef3f4;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{width:min(940px,94vw);margin:2rem auto 4rem}header,section,details{background:white;border:1px solid var(--line);border-radius:14px;padding:1.3rem;margin:.85rem 0}
+header{border-top:5px solid var(--accent)}h1{line-height:1.15;margin:.25rem 0}h2,h3{margin:.2rem 0 .7rem}p{margin:.45rem 0 .8rem}
+small,.muted{color:var(--muted)}label{display:block;font-weight:600;margin:.55rem 0}input,select,textarea,button{font:inherit}
+input:not([type=checkbox]),textarea,select{width:100%;padding:.48rem;border:1px solid #8396a5;border-radius:6px;background:white;color:var(--ink)}
+input[type=checkbox]{margin-right:.45rem}textarea{min-height:90px}button{background:var(--accent);color:white;border:0;border-radius:7px;padding:.5rem .85rem;cursor:pointer;margin:.2rem .2rem .35rem 0}
+button:disabled{opacity:.55;cursor:default}:focus-visible{outline:3px solid #246bdb;outline-offset:3px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff5f4;padding:.9rem;border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:560px}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--line);vertical-align:top}
+.scroll{overflow:auto}.grid{display:grid;gap:.65rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+summary{cursor:pointer;font-weight:650}
+</style>
+<main>
+<header><small>AI FOR RECRUITERS · 43–50 min</small><h1>Candidate communication and selection</h1>
+<p>ABC Technologies · Senior Java Developer · Hyderabad · Two openings</p>
+<p>Draft all four messages. Review a feedback summary and check whether changing the draft resets approval.</p></header>
+<section id="demo" aria-label="Live activity"></section>
+<details><summary>Copy-ready prompt for ChatGPT</summary>
+<p class="muted">The local demo uses fictional data and runs offline. Paste this prompt into ChatGPT separately to compare with a live generative AI response.</p>
+<textarea id="prompt" aria-label="Workshop prompt" readonly></textarea>
+<button id="copy">Copy prompt</button><span id="copy-status" role="status"></span>
+</details>
+</main>
+<script>
+const data = {"job": {"company": "ABC Technologies", "title": "Senior Java Developer", "location": "Hyderabad", "years": 5, "openings": 2, "required": ["Java", "Spring Boot", "REST APIs", "SQL"], "preferred": ["AWS", "Docker", "Kubernetes"]}, "candidates": [["A", 7, "Built Java and Spring Boot services with REST APIs and SQL. Deployed on AWS using Docker."], ["E", 5, "Implemented Java, Spring Boot, RESTful services and PostgreSQL. Used Kubernetes."], ["B", 6, "Developed Java services with SpringBoot, REST API design and SQL."], ["C", 4, "Built Java, Spring Boot, REST APIs and SQL features. Used Docker."], ["D", 8, "Developed Python services and administered SQL databases. Used AWS and Kubernetes."]], "topic": 6, "prompt": "Use this fictional role only: ABC Technologies, Senior Java Developer, Hyderabad, 2 openings, 5+ years, Java, Spring Boot, REST APIs and SQL required. AWS, Docker and Kubernetes preferred. Look for evidence of production development, problem-solving and communication. Mark unknowns and use placeholders for missing facts. Draft a friendly screening invitation, interview follow-up, offer-cover email or rejection message as requested. Summarize any provided feedback with evidence gaps. Preserve placeholders for scheduling and approved terms. Assume nothing has been sent."};
+// Shared
+const get = id => document.getElementById(id);
+const demo = get("demo");
+const job = data.job;
+const set = (id, value) => { get(id).textContent = value; };
+const split = value => [...new Set(value.split(",").map(item => item.trim()).filter(Boolean))];
+get("prompt").value = data.prompt;
+get("copy").onclick = async () => {
+    try {
+        await navigator.clipboard.writeText(get("prompt").value);
+        set("copy-status", "Copied");
+    } catch {
+        get("prompt").select();
+        set("copy-status", "Prompt selected. Use Ctrl+C or Command+C.");
+    }
+};
+// Topic 6
+demo.innerHTML = `<h2>Prepare a draft for recruiter review</h2>
+<label>Communication<select id="kind"><option>Screening invitation</option><option>Interview follow-up</option><option>Offer-cover email</option><option>Rejection communication</option></select></label>
+<label>Fictional interview evidence<textarea id="feedback">Candidate A described operating Spring Boot services in production.</textarea></label>
+<label>Evidence to verify<textarea id="gaps">Confirm scope of personal ownership.</textarea></label>
+<button id="generate">Generate draft and feedback summary</button><pre id="summary"></pre>
+<label>Review or edit the draft<textarea id="draft"></textarea></label>
+<label><input id="confirm" type="checkbox">I verified the recipient, wording and any applicable human decision or approved terms.</label>
+<button id="approve" disabled>Record draft approval</button><p id="status" role="status"></p>`;
+const messages = {
+    "Screening invitation":`Would you be available for a 20-minute screening call about the ${job.title} role in ${job.location}? Please choose a time at [Scheduling link] or reply with your availability.`,
+    "Interview follow-up":`Thank you for meeting with us about the ${job.title} role. We will share an update by [Date]. Please contact [Recruiter contact] with any questions.`,
+    "Offer-cover email":`Please find the approved offer for the ${job.title} role attached as [Approved offer document]. Please review the terms and reply by [Approved response date].`,
+    "Rejection communication":`Thank you for your interest in the ${job.title} role. Following our review, we are closing your application for this opening. We appreciate your time.`
+};
+function resetApproval() {
+    get("confirm").checked = false;
+    get("approve").disabled = true;
+    set("status", "Draft requires recruiter review. No message has been sent.");
+}
+function draft() {
+    const kind = get("kind").value;
+    set("summary", "Recorded evidence: " + (get("feedback").value.trim() || "None recorded") +
+        "\nVerify: " + (get("gaps").value.trim() || "No gaps recorded") + "\nSelection decision: [Human decision]");
+    get("draft").value = `Subject: ${kind} | ${job.title}\n\nHi [Candidate name],\n\n${messages[kind]}\n\nBest,\n[Recruiter name]\n${job.company}`;
+    resetApproval();
+}
+get("generate").onclick = draft;
+get("kind").onchange = draft;
+get("draft").oninput = resetApproval;
+for (const id of ["feedback", "gaps"]) get(id).oninput = () => {
+    set("summary", "Feedback changed. Generate an updated draft and summary.");
+    get("draft").value = "";
+    resetApproval();
+};
+get("confirm").onchange = () => {
+    get("approve").disabled = !get("confirm").checked || !get("draft").value.trim();
+    if (!get("confirm").checked) set("status", "Approval cleared.");
+};
+get("approve").onclick = () => set("status", "Draft approval recorded for this session. No message has been sent.");
+draft();
+</script>
