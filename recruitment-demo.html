@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resume screening and candidate matching | AI for Recruiters</title>
+<style>
+:root {color-scheme:light;--ink:#162539;--muted:#44556b;--accent:#145849;--line:#cbd8dd}
+*{box-sizing:border-box}body{margin:0;background:#eef3f4;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{width:min(940px,94vw);margin:2rem auto 4rem}header,section,details{background:white;border:1px solid var(--line);border-radius:14px;padding:1.3rem;margin:.85rem 0}
+header{border-top:5px solid var(--accent)}h1{line-height:1.15;margin:.25rem 0}h2,h3{margin:.2rem 0 .7rem}p{margin:.45rem 0 .8rem}
+small,.muted{color:var(--muted)}label{display:block;font-weight:600;margin:.55rem 0}input,select,textarea,button{font:inherit}
+input:not([type=checkbox]),textarea,select{width:100%;padding:.48rem;border:1px solid #8396a5;border-radius:6px;background:white;color:var(--ink)}
+input[type=checkbox]{margin-right:.45rem}textarea{min-height:90px}button{background:var(--accent);color:white;border:0;border-radius:7px;padding:.5rem .85rem;cursor:pointer;margin:.2rem .2rem .35rem 0}
+button:disabled{opacity:.55;cursor:default}:focus-visible{outline:3px solid #246bdb;outline-offset:3px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff5f4;padding:.9rem;border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:560px}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--line);vertical-align:top}
+.scroll{overflow:auto}.grid{display:grid;gap:.65rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+summary{cursor:pointer;font-weight:650}
+</style>
+<main>
+<header><small>AI FOR RECRUITERS · 22–35 min</small><h1>Resume screening and candidate matching</h1>
+<p>ABC Technologies · Senior Java Developer · Hyderabad · Two openings</p>
+<p>Compare five fictional profiles. Change the weights and inspect the evidence. Ask whether the top row should automatically get an offer.</p></header>
+<section id="demo" aria-label="Live activity"></section>
+<details><summary>Copy-ready prompt for ChatGPT</summary>
+<p class="muted">The local demo uses fictional data and runs offline. Paste this prompt into ChatGPT separately to compare with a live generative AI response.</p>
+<textarea id="prompt" aria-label="Workshop prompt" readonly></textarea>
+<button id="copy">Copy prompt</button><span id="copy-status" role="status"></span>
+</details>
+</main>
+<script>
+const data = {"job": {"company": "ABC Technologies", "title": "Senior Java Developer", "location": "Hyderabad", "years": 5, "openings": 2, "required": ["Java", "Spring Boot", "REST APIs", "SQL"], "preferred": ["AWS", "Docker", "Kubernetes"]}, "candidates": [["A", 7, "Built Java and Spring Boot services with REST APIs and SQL. Deployed on AWS using Docker."], ["E", 5, "Implemented Java, Spring Boot, RESTful services and PostgreSQL. Used Kubernetes."], ["B", 6, "Developed Java services with SpringBoot, REST API design and SQL."], ["C", 4, "Built Java, Spring Boot, REST APIs and SQL features. Used Docker."], ["D", 8, "Developed Python services and administered SQL databases. Used AWS and Kubernetes."]], "topic": 4, "prompt": "Use this fictional role only: ABC Technologies, Senior Java Developer, Hyderabad, 2 openings, 5+ years, Java, Spring Boot, REST APIs and SQL required. AWS, Docker and Kubernetes preferred. Look for evidence of production development, problem-solving and communication. Mark unknowns and use placeholders for missing facts. Summarize job-related evidence in the fictional candidate profiles I paste below. Quote the evidence, mark unlisted qualifications as unverified and propose recruiter follow-up questions. Avoid predicting hiring probability or making selection decisions.\n\nFictional profiles:\nCandidate A, 7 years: Built Java and Spring Boot services with REST APIs and SQL. Deployed on AWS using Docker.\nCandidate E, 5 years: Implemented Java, Spring Boot, RESTful services and PostgreSQL. Used Kubernetes.\nCandidate B, 6 years: Developed Java services with SpringBoot, REST API design and SQL.\nCandidate C, 4 years: Built Java, Spring Boot, REST APIs and SQL features. Used Docker.\nCandidate D, 8 years: Developed Python services and administered SQL databases. Used AWS and Kubernetes."};
+// Shared
+const get = id => document.getElementById(id);
+const demo = get("demo");
+const job = data.job;
+const set = (id, value) => { get(id).textContent = value; };
+const split = value => [...new Set(value.split(",").map(item => item.trim()).filter(Boolean))];
+get("prompt").value = data.prompt;
+get("copy").onclick = async () => {
+    try {
+        await navigator.clipboard.writeText(get("prompt").value);
+        set("copy-status", "Copied");
+    } catch {
+        get("prompt").select();
+        set("copy-status", "Prompt selected. Use Ctrl+C or Command+C.");
+    }
+};
+// Topic 4
+demo.innerHTML = `<h2>Compare five fictional candidates</h2>
+<div class="grid"><label>Mandatory skills (%)<input id="mandatory" type="number" min="0" max="100" value="70"></label>
+<label>Experience (%)<input id="experience" type="number" min="0" max="100" value="20"></label>
+<div>Preferred skills (remaining)<p id="preferred"></p></div></div>
+<p id="weight-error" role="status"></p>
+<div class="scroll"><table><thead><tr><th>Candidate</th><th>Score</th><th>Evidence</th><th>Recruiter review</th></tr></thead><tbody id="ranking"></tbody></table></div>
+<p class="muted">Scores are illustrative evidence coverage from a deterministic formula. They are not hiring probabilities or predictions of performance. Verify qualifications that the resume does not list.</p>`;
+const patterns = {
+    Java:/\bJava\b/i, "Spring Boot":/\bSpring\s*Boot\b/i, "REST APIs":/\b(?:REST APIs?|RESTful services)\b/i,
+    SQL:/\b(?:SQL|PostgreSQL|MySQL)\b/i, AWS:/\bAWS\b/i, Docker:/\bDocker\b/i, Kubernetes:/\bKubernetes\b/i
+};
+function scoreCandidates(mandatory, experience) {
+    const preferred = 100 - mandatory - experience;
+    return data.candidates.map(([id, years, resume]) => {
+        const skills = [...job.required, ...job.preferred].filter(skill => patterns[skill].test(resume));
+        const missing = job.required.filter(skill => !skills.includes(skill));
+        const score = mandatory * (job.required.length - missing.length) / job.required.length
+            + experience * Math.min(years / job.years, 1)
+            + preferred * job.preferred.filter(skill => skills.includes(skill)).length / job.preferred.length;
+        return {id, years, resume, skills, missing, score};
+    }).sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+}
+function rank() {
+    const mandatory = get("mandatory").valueAsNumber;
+    const experience = get("experience").valueAsNumber;
+    const valid = Number.isFinite(mandatory) && Number.isFinite(experience)
+        && mandatory >= 0 && experience >= 0 && mandatory + experience <= 100;
+    get("ranking").replaceChildren();
+    set("preferred", valid ? (100 - mandatory - experience) + "%" : "—");
+    set("weight-error", valid ? "" : "Enter nonnegative weights that total 100% or less.");
+    if (!valid) return;
+    for (const candidate of scoreCandidates(mandatory, experience)) {
+        const row = get("ranking").insertRow();
+        const gaps = [...candidate.missing];
+        if (candidate.years < job.years) gaps.push(`verify ${job.years}+ years`);
+        const review = gaps.length ? "Needs review: " + gaps.join(", ") : "Meets listed skill and experience criteria";
+        for (const value of [
+            `Candidate ${candidate.id} · ${candidate.years} years`, Math.round(candidate.score) + "/100",
+            candidate.skills.join(", ") + " · " + candidate.resume, review
+        ]) row.insertCell().textContent = value;
+    }
+}
+get("mandatory").oninput = rank;
+get("experience").oninput = rank;
+rank();
+</script>
