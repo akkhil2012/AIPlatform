@@ -385,3 +385,694 @@ Fourth, rather than forcing migration, I would provide SDKs, reference implement
 Finally, I would create a transparent engineering scorecard showing the business value delivered by the common platform.
 My objective would not be to win an architectural argument. It would be to establish a shared technical direction that helps each director achieve their product objectives while reducing duplication and improving enterprise governance."
 
+=======
+AI platform Terms:
+=====
+# **Enterprise Agentic AI — Technical Keyword Cheat Sheet**
+
+**Format:** Keyword → One-line definition → Implementation approach and technology stack.
+
+Based on your 19 scenario chapters and implementation question banks, I have consolidated the important technical keywords into a domain-wise interview revision guide, removing overlapping concepts. The technology choices are reference implementations, not mandatory architectural requirements.
+
+## **1. Enterprise Agentic AI architecture**
+
+| Keyword                           | One-line definition                                                     | How to implement / Tech stack          |
+| --------------------------------- | ----------------------------------------------------------------------- | -------------------------------------- |
+| Agentic AI                        | AI that plans, delegates and executes tasks within defined constraints. | Google ADK, LangGraph, Python          |
+| AI agent                          | A component that uses models and tools to accomplish an objective.      | ADK Agent, tool registry, LLM          |
+| Multi-agent system                | Multiple agents collaborating to achieve a business objective.          | Google ADK, A2A, LangGraph             |
+| Supervisor agent                  | An agent responsible for coordinating specialist agents.                | ADK root agent, typed delegation       |
+| Specialist agent                  | An agent responsible for a specific business capability.                | Domain-specific prompts, scoped tools  |
+| Control plane                     | Centralized layer managing configurations, policies and governance.     | FastAPI, YAML, PostgreSQL              |
+| Execution plane                   | Distributed layer executing approved agent workflows.                   | Kubernetes, ECS Fargate, Python        |
+| Data plane                        | Layer through which application data is accessed and processed.         | Data APIs, PostgreSQL, Snowflake       |
+| Agent registry                    | Central catalog of agent capabilities, contracts and versions.          | PostgreSQL, FastAPI, YAML              |
+| Tool registry                     | Catalog of available tools, schemas and permissions.                    | MCP registry, JSON Schema              |
+| Model registry                    | Catalog of approved models and evaluated capabilities.                  | PostgreSQL, YAML, benchmark metadata   |
+| Agent contract                    | Typed definition of an agent's inputs and outputs.                      | Pydantic, Protobuf, JSON Schema        |
+| API gateway                       | Central entry point enforcing request-level controls.                   | Kong, Envoy, AWS API Gateway           |
+| Stateless architecture            | Architecture that externalizes persistent execution state.              | FastAPI, Redis, PostgreSQL             |
+| Microservices                     | Independently deployable services organized around capabilities.        | Docker, Kubernetes, gRPC               |
+| Configuration-driven architecture | System behavior defined through external configuration.                 | YAML, Pydantic, configuration service  |
+| Configuration versioning          | Maintaining immutable versions of configuration changes.                | Git, PostgreSQL, versioned artifacts   |
+| Configuration distribution        | Propagating approved configurations to runtimes.                        | Kafka, SNS/SQS, signed artifacts       |
+| Version pinning                   | Binding an execution to compatible component versions.                  | Workflow metadata, immutable artifacts |
+| Platform SDK                      | Reusable library simplifying platform integration.                      | Python packages, typed APIs            |
+| Infrastructure as Code            | Provisioning infrastructure through version-controlled definitions.     | Terraform, CloudFormation              |
+| Federated architecture            | Distributed team ownership with common enterprise standards.            | Shared gateways, contracts, SDKs       |
+
+## **2. Identity, security and governance**
+
+| Keyword                   | One-line definition                                                              | How to implement / Tech stack                       |
+| ------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Zero Trust                | Every protected operation requires verified authorization.                       | IAM, mTLS, OPA                                      |
+| Authentication            | Verification of an identity.                                                     | OAuth 2.0, OIDC, JWT                                |
+| Authorization             | Determination of permitted actions and resources.                                | OPA, Rego, IAM                                      |
+| OAuth 2.0                 | Framework for delegated authorization.                                           | Keycloak, enterprise identity provider              |
+| OIDC                      | Identity authentication layer built on OAuth 2.0.                                | Keycloak, Microsoft Entra ID                        |
+| JWT                       | Token format containing verifiable claims when properly signed.                  | PyJWT, ES256, RS256                                 |
+| JWKS                      | Published set of cryptographic keys for token verification.                      | Identity-provider JWKS endpoint                     |
+| RBAC                      | Authorization based on assigned roles.                                           | IAM roles, OPA, role mappings                       |
+| ABAC                      | Authorization based on identity, resource and contextual attributes.             | OPA, Rego policies                                  |
+| ACL                       | List defining permitted access to a resource.                                    | Document metadata, database permissions             |
+| PDP                       | Policy Decision Point evaluates authorization policies.                          | Open Policy Agent, Rego                             |
+| PEP                       | Policy Enforcement Point enforces authorization decisions.                       | FastAPI middleware, MCP gateway                     |
+| OPA                       | General-purpose policy evaluation engine.                                        | OPA service or sidecar                              |
+| Rego                      | Declarative language for defining OPA policies.                                  | Version-controlled Rego files                       |
+| Least privilege           | Granting only the permissions necessary for a task.                              | Scoped IAM roles, tool permissions                  |
+| Least agency              | Restricting the independent actions an agent can perform.                        | Tool allowlists, budgets, approval gates            |
+| Workload identity         | Verifiable identity assigned to a service or agent.                              | IAM service roles, SPIFFE/SPIRE                     |
+| Delegated authorization   | Allowing an agent to act within a user's granted authority.                      | OAuth token exchange, scoped tokens                 |
+| Effective permissions     | Intersection of delegated authority, agent capabilities and applicable policies. | OPA policy evaluation                               |
+| Identity propagation      | Securely transmitting identity context across services.                          | Audience-scoped tokens, gRPC metadata               |
+| Trusted execution context | Verified identity, tenant and permission context for execution.                  | Signed tokens, server-side context                  |
+| mTLS                      | Mutual certificate-based authentication between services.                        | Envoy, Istio, TLS certificates                      |
+| Tenant isolation          | Preventing one tenant from accessing another tenant's resources.                 | PostgreSQL RLS, namespaces, IAM                     |
+| Multi-tenancy             | Serving multiple customers through a shared platform.                            | Tenant-aware routing and storage                    |
+| Hybrid multi-tenancy      | Combining shared and dedicated tenant infrastructure.                            | Kubernetes namespaces, isolated pools               |
+| Defense in depth          | Applying independent security controls across multiple layers.                   | Gateway, IAM, PDP, network policies                 |
+| Fail closed               | Denying protected operations when authorization cannot be established.           | Default-deny middleware                             |
+| Fail open                 | Allowing an operation despite a failed control check.                            | Explicit low-risk fallback policies only            |
+| Privilege escalation      | Obtaining permissions beyond authorized boundaries.                              | Scope validation, IAM restrictions                  |
+| Confused deputy           | Exploiting a privileged service to perform unauthorized actions.                 | Delegation checks, audience validation              |
+| Prompt injection          | Untrusted content attempting to manipulate model behavior.                       | Content isolation, deterministic tool authorization |
+| Guardrails                | Controls that constrain AI inputs, outputs and actions.                          | Validators, policies, guard models                  |
+| Data residency            | Restrictions on where data is stored and processed.                              | Regional routing, approved endpoints                |
+| Egress control            | Restricting outbound data transmission.                                          | Network policies, firewalls, destination allowlists |
+| Data masking              | Concealing sensitive information from unauthorized consumers.                    | Redaction middleware, database masking              |
+| Audit trail               | Chronological record of actions and decisions.                                   | Structured append-only audit events                 |
+| Policy versioning         | Tracking changes to authorization rules.                                         | Git, OPA policy bundles                             |
+| TOCTOU                    | Security gap between authorization checking and action execution.                | Revalidate at execution boundary                    |
+| Human-in-the-loop (HITL)  | Human intervention or approval within an automated workflow.                     | Temporal signals, approval APIs                     |
+
+## **3. Agent orchestration and planning**
+
+| Keyword                    | One-line definition                                                | How to implement / Tech stack         |
+| -------------------------- | ------------------------------------------------------------------ | ------------------------------------- |
+| Agent orchestration        | Coordinating agent execution and dependencies.                     | Google ADK, LangGraph, Temporal       |
+| Deterministic routing      | Selecting an execution path using explicit rules.                  | Python rule engine, YAML              |
+| LLM-based routing          | Using a model to interpret and classify ambiguous requests.        | LLM structured output, Pydantic       |
+| Confidence-based routing   | Selecting routes according to evaluated confidence thresholds.     | Calibrated classifier, fallback rules |
+| Intent classification      | Identifying the user's requested business operation.               | Rules, classifier, approved LLM       |
+| Dynamic agent discovery    | Selecting available agents based on registered capabilities.       | Agent registry, capability queries    |
+| Sequential execution       | Executing dependent steps in order.                                | Temporal, LangGraph edges             |
+| Parallel execution         | Executing independent tasks concurrently.                          | Python asyncio, distributed workers   |
+| Hierarchical orchestration | Organizing agents through supervisor-subordinate relationships.    | Nested ADK agents                     |
+| Planner-executor pattern   | Separating plan generation from controlled execution.              | LLM planner, deterministic executor   |
+| DAG                        | Directed Acyclic Graph representing execution dependencies.        | NetworkX, LangGraph, typed nodes      |
+| DAG validation             | Checking plans for valid dependencies, permissions and schemas.    | NetworkX, Pydantic, OPA               |
+| Topological sorting        | Ordering graph nodes according to dependencies.                    | Python graphlib, NetworkX             |
+| Cycle detection            | Identifying circular execution dependencies.                       | DFS, topological sorting              |
+| Workflow engine            | Runtime managing execution, persistence and recovery.              | Temporal, LangGraph                   |
+| Workflow state             | Authoritative record of workflow execution progress.               | PostgreSQL, Temporal                  |
+| State machine              | Model defining permitted states and transitions.                   | Temporal, Python state-machine logic  |
+| Checkpointing              | Persisting progress so interrupted execution can resume.           | PostgreSQL, workflow engine           |
+| Agent delegation           | Assigning a task to another authorized agent.                      | ADK delegation, A2A                   |
+| A2A                        | Protocol enabling communication between independent agents.        | A2A SDK, authenticated endpoints      |
+| gRPC                       | Framework for typed remote procedure calls.                        | gRPC, Protocol Buffers                |
+| Protobuf                   | Structured binary data serialization format.                       | Protocol Buffers schemas              |
+| Structured output          | Model response constrained to a defined data structure.            | JSON Schema, Pydantic                 |
+| Dynamic replanning         | Revising a plan after failure or changed conditions.               | Bounded LLM planner, DAG revalidation |
+| Reflection                 | Evaluating an agent's result before further execution.             | Evaluator agent, bounded iteration    |
+| Bounded autonomy           | Limiting autonomous execution using explicit constraints.          | Step limits, budgets, policy gates    |
+| Recursion limit            | Maximum permitted nested execution depth.                          | Runtime depth counter                 |
+| Runaway execution          | Uncontrolled execution consuming excessive resources.              | Deadlines, counters, cancellation     |
+| Repeated-action detection  | Identifying recurring operations without meaningful progress.      | Normalized action hashes, Redis       |
+| Execution budget           | Maximum resources a workflow is permitted to consume.              | Atomic Redis counters, model gateway  |
+| Critical dependency        | Mandatory prerequisite for another operation.                      | DAG dependency rules, hard gates      |
+| Optional dependency        | Nonessential prerequisite whose failure permits partial execution. | Conditional workflow branches         |
+| Criticality classification | Categorizing steps according to business impact.                   | Workflow metadata, risk policies      |
+
+## **4. Scalability and performance**
+
+| Keyword                  | One-line definition                                                     | How to implement / Tech stack             |
+| ------------------------ | ----------------------------------------------------------------------- | ----------------------------------------- |
+| Horizontal scaling       | Increasing capacity by adding service instances.                        | Kubernetes replicas, ECS scaling          |
+| Vertical scaling         | Increasing resources allocated to an instance.                          | Larger CPU, RAM or GPU instances          |
+| Autoscaling              | Automatically adjusting capacity according to demand.                   | Kubernetes HPA, KEDA                      |
+| HPA                      | Kubernetes Horizontal Pod Autoscaler.                                   | CPU, memory or custom metrics             |
+| KEDA                     | Event-driven Kubernetes workload autoscaling.                           | Kafka lag, SQS queue metrics              |
+| Concurrency              | Number of operations simultaneously in progress.                        | Async workers, semaphores                 |
+| Throughput               | Number of completed operations per unit of time.                        | Prometheus counters, load tests           |
+| RPS                      | Requests received or processed per second.                              | API gateway metrics                       |
+| RPM                      | Requests received or processed per minute.                              | Gateway counters                          |
+| Little's Law             | Average concurrency equals arrival rate multiplied by average duration. | Capacity planning: L = λW                 |
+| Workload amplification   | Multiple downstream operations generated by one request.                | Distributed traces, fan-out metrics       |
+| Rate limiting            | Restricting operations within a defined time interval.                  | Redis, Kong, Envoy                        |
+| Token bucket             | Rate limiter replenishing request permits at a configured rate.         | Redis atomic operations, Lua              |
+| Admission control        | Accepting work only when sufficient capacity exists.                    | Gateway quotas, queue-capacity checks     |
+| Backpressure             | Slowing or rejecting incoming work when dependencies saturate.          | Bounded queues, HTTP 429/503              |
+| Load balancing           | Distributing traffic across available service instances.                | ALB, NGINX, Envoy                         |
+| Noisy neighbor           | One tenant disproportionately consuming shared resources.               | Tenant quotas, dedicated pools            |
+| Weighted fair scheduling | Allocating processing capacity among workloads using weights.           | Tenant queues, weighted scheduler         |
+| Bulkhead isolation       | Separating resources to contain dependency failures.                    | Independent pools, semaphores             |
+| Connection pooling       | Reusing network or database connections.                                | SQLAlchemy pools, HTTPX clients           |
+| Asynchronous processing  | Executing work without blocking the caller.                             | asyncio, Kafka, SQS                       |
+| Queue depth              | Number of tasks waiting for processing.                                 | SQS metrics, Kafka consumer lag           |
+| Worker pool              | Group of workers processing assigned tasks.                             | ECS workers, Kubernetes deployments       |
+| p50 latency              | Median request completion latency.                                      | Prometheus histograms                     |
+| p95 latency              | Latency within which 95% of measured requests complete.                 | OpenTelemetry, Prometheus                 |
+| p99 latency              | Latency within which 99% of measured requests complete.                 | Histogram-based monitoring                |
+| Tail latency             | High-percentile latency affecting slower requests.                      | p95/p99 monitoring, load testing          |
+| Load testing             | Measuring performance under expected workloads.                         | Locust, k6                                |
+| Stress testing           | Evaluating behavior beyond normal capacity.                             | Locust, k6, synthetic workloads           |
+| Capacity planning        | Estimating resources needed for expected demand.                        | RPS, concurrency, token-throughput models |
+| Tenant quota             | Resource-consumption allowance assigned to a tenant.                    | Redis counters, gateway policies          |
+
+## **5. Workflow reliability and fault tolerance**
+
+| Keyword                      | One-line definition                                                             | How to implement / Tech stack             |
+| ---------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------- |
+| Fault tolerance              | Continuing safe operation despite component failures.                           | Replication, retries, failover            |
+| High availability            | Maintaining service accessibility despite infrastructure failures.              | Multi-AZ deployment, load balancers       |
+| Resilience                   | Ability to withstand failures and recover safely.                               | Circuit breakers, durable state           |
+| Circuit breaker              | Temporarily blocking requests to an unhealthy dependency.                       | Resilience4j, PyBreaker                   |
+| Closed circuit               | Normal state allowing dependency requests.                                      | Circuit-breaker state machine             |
+| Open circuit                 | State blocking requests to a failing dependency.                                | Failure-threshold configuration           |
+| Half-open circuit            | State permitting limited recovery-test requests.                                | Controlled health probes                  |
+| Retry                        | Reattempting an eligible failed operation.                                      | Tenacity, Temporal retry policies         |
+| Bounded retry                | Retrying within predefined attempt and time limits.                             | Tenacity stop conditions                  |
+| Exponential backoff          | Progressively increasing delay between retries.                                 | Tenacity exponential wait                 |
+| Jitter                       | Randomizing retry intervals to prevent synchronized retries.                    | Randomized exponential backoff            |
+| Retry storm                  | Excessive simultaneous retries overwhelming a dependency.                       | Retry budgets, jitter, circuit breakers   |
+| Retryable failure            | Temporary failure that may succeed on another attempt.                          | Error classification, retry policy        |
+| Terminal failure             | Permanent failure that should not be blindly retried.                           | Exception classification                  |
+| Ambiguous failure            | Failure where the actual operation outcome is uncertain.                        | Transaction-status reconciliation         |
+| Timeout                      | Maximum permitted waiting time for an operation.                                | HTTPX, gRPC deadlines                     |
+| Deadline propagation         | Passing the remaining execution time across services.                           | gRPC deadlines, request context           |
+| Idempotency                  | Repeated execution of the same operation without additional business effects.   | Stable keys, database constraints         |
+| Idempotency key              | Unique identifier representing a logical business operation.                    | Business ID or workflow ID + step ID      |
+| Deduplication                | Detecting and suppressing repeated operations.                                  | PostgreSQL unique constraints, Redis      |
+| Execution ledger             | Durable record of attempted and completed operations.                           | Transactional PostgreSQL table            |
+| At-least-once delivery       | Delivery guaranteeing one or more attempts, potentially including duplicates.   | Kafka, SQS                                |
+| Exactly-once business effect | Ensuring repeated delivery produces only one committed business outcome.        | Atomic downstream deduplication           |
+| Lost acknowledgment          | Operation succeeds but its confirmation fails to reach the caller.              | Status API, idempotency lookup            |
+| Transaction reconciliation   | Comparing recorded execution with authoritative transaction state.              | Ledger queries, downstream status APIs    |
+| Transactional outbox         | Atomically recording state changes and events for later publication.            | PostgreSQL outbox, Kafka, CDC             |
+| Optimistic locking           | Detecting concurrent modifications using version checks.                        | PostgreSQL version column                 |
+| Distributed lock             | Coordinating exclusive access across service instances.                         | Redis leases, fencing tokens              |
+| Workflow recovery            | Resuming interrupted execution from persisted state.                            | Temporal, durable checkpoints             |
+| Graceful degradation         | Providing reduced but safe functionality during failures.                       | Approved fallbacks, optional branches     |
+| Partial response             | Returning validated available results when some operations fail.                | Typed incomplete-response contracts       |
+| Compensation                 | Business operation that offsets a previously completed action.                  | Saga pattern, compensating APIs           |
+| Saga pattern                 | Distributed transaction coordination using local transactions and compensation. | Temporal workflows                        |
+| Dead-letter queue (DLQ)      | Queue storing messages that repeatedly fail processing.                         | SQS DLQ, Kafka dead-letter topics         |
+| Cascading failure            | Failure spreading across dependent services.                                    | Bulkheads, backpressure, circuit breakers |
+| Fault injection              | Deliberately introducing failures to validate resilience.                       | Chaos Mesh, AWS FIS, Pytest               |
+| Single point of failure      | Component whose failure can disable the entire system.                          | Redundancy, multi-AZ deployment           |
+
+## **6. Model gateway and inference optimization**
+
+| Keyword                     | One-line definition                                                         | How to implement / Tech stack           |
+| --------------------------- | --------------------------------------------------------------------------- | --------------------------------------- |
+| LLM                         | Large Language Model trained to process and generate language.              | Claude, GPT, Gemini, Llama              |
+| SLM                         | Smaller language model suited to resource-constrained workloads.            | Phi, Qwen, Gemma                        |
+| Model gateway               | Central interface managing model access, routing and governance.            | LiteLLM, FastAPI                        |
+| Provider abstraction        | Hiding provider-specific interfaces behind a common contract.               | LiteLLM, adapter pattern                |
+| Model adapter               | Component translating common requests into provider-specific formats.       | Python provider adapters                |
+| Provider independence       | Ability to use different model providers without major application changes. | Common inference interface              |
+| Model capability registry   | Catalog of model capabilities, constraints and quality scores.              | PostgreSQL, YAML                        |
+| Model routing               | Selecting an appropriate model for a request.                               | Policy-driven router                    |
+| Tiered model routing        | Assigning tasks to different model capability tiers.                        | LiteLLM, task classification            |
+| Risk-based routing          | Selecting models according to task risk and governance requirements.        | Risk classifier, OPA                    |
+| Latency-aware routing       | Selecting eligible models based on response-time requirements.              | Latency metrics, routing policies       |
+| Confidence-based escalation | Escalating uncertain results to stronger models or human review.            | Calibrated confidence thresholds        |
+| Deterministic LLM bypass    | Handling predictable operations without model inference.                    | Python rules, templates                 |
+| Model fallback              | Switching to another approved model when the primary fails.                 | LiteLLM fallback chains                 |
+| Provider failover           | Redirecting requests away from an unavailable provider.                     | Circuit breakers, approved alternatives |
+| Token                       | Unit of text or other input processed by a language model.                  | Model-specific tokenizer                |
+| Context window              | Maximum token capacity supported by a model invocation.                     | Tokenizer, context validation           |
+| Token budget                | Maximum tokens permitted for a request or workflow.                         | Gateway limits, Redis reservations      |
+| Token reservation           | Allocating estimated token capacity before inference.                       | Atomic Redis counters                   |
+| Token reconciliation        | Adjusting reserved usage against actual billed usage.                       | Provider usage metadata                 |
+| TPM                         | Number of tokens processed per minute.                                      | Gateway counters, provider metrics      |
+| Token throughput            | Rate at which model tokens are processed or generated.                      | vLLM, inference telemetry               |
+| Spending limit              | Maximum permitted inference expenditure.                                    | Tenant-level cost counters              |
+| Context optimization        | Selecting necessary information to reduce inference overhead.               | Summarization, relevance filtering      |
+| Context compression         | Reducing input length while retaining essential information.                | Summarizers, structured memory          |
+| Exact-match caching         | Reusing responses for equivalent normalized requests.                       | Redis, request hashes                   |
+| Semantic caching            | Reusing responses for semantically similar authorized requests.             | Redis Vector, embeddings                |
+| Permission-aware caching    | Restricting cached responses according to current permissions.              | Tenant-scoped keys, ACL revalidation    |
+| Prompt caching              | Reusing previously processed prompt prefixes.                               | Supported provider caching APIs         |
+| Cache invalidation          | Removing cached information when its dependencies change.                   | Kafka events, TTLs                      |
+| TTL                         | Time-to-live defining when stored information expires.                      | Redis EXPIRE                            |
+| Batch processing            | Processing multiple requests together to improve efficiency.                | Provider batch APIs, vLLM               |
+| Model distillation          | Training a smaller model to reproduce a larger model's useful behavior.     | PyTorch, Hugging Face                   |
+| Model quality score         | Task-specific measurement of model performance.                             | Golden datasets, evaluation harness     |
+| Model authorization         | Restricting model access according to user, agent and tenant policies.      | OPA, model gateway                      |
+| Provider throttling         | Provider restricting requests beyond configured limits.                     | HTTP 429 handling, backoff              |
+| Model credential management | Secure storage and rotation of model-access credentials.                    | AWS Secrets Manager, Vault              |
+| Cost per successful task    | Total relevant cost divided by correctly completed business tasks.          | Usage ledger, evaluation results        |
+| Model inference auditing    | Recording model usage, identities, versions and policy decisions.           | OpenTelemetry, structured audit logs    |
+
+## **7. Enterprise RAG and knowledge retrieval**
+
+| Keyword                      | One-line definition                                                      | How to implement / Tech stack          |
+| ---------------------------- | ------------------------------------------------------------------------ | -------------------------------------- |
+| RAG                          | Retrieval-Augmented Generation supplies retrieved evidence to a model.   | LangChain, LlamaIndex, vector database |
+| Document ingestion           | Importing enterprise documents into a knowledge pipeline.                | Python workers, Kafka, S3              |
+| Document parsing             | Extracting usable content from source documents.                         | PyMuPDF, Unstructured                  |
+| Chunking                     | Splitting documents into smaller retrieval units.                        | Recursive or semantic chunking         |
+| Chunk overlap                | Repeating limited content across adjacent chunks to preserve continuity. | Configurable text splitter             |
+| Embedding                    | Numerical vector representing semantic characteristics of content.       | Sentence Transformers, embedding APIs  |
+| Embedding model              | Model converting content into vector representations.                    | MiniLM, BGE                            |
+| Vector database              | Database optimized for vector storage and similarity retrieval.          | Qdrant, pgvector                       |
+| Vector index                 | Data structure accelerating similarity searches.                         | HNSW, FAISS                            |
+| Vector search                | Finding embeddings similar to a query embedding.                         | Qdrant, pgvector                       |
+| Cosine similarity            | Measurement of angular similarity between vectors.                       | NumPy, vector database operators       |
+| Semantic search              | Retrieving content according to meaning rather than exact wording.       | Embeddings, vector index               |
+| Keyword search               | Retrieving content using lexical term matching.                          | Elasticsearch, OpenSearch              |
+| BM25                         | Ranking algorithm based on term relevance and document statistics.       | Elasticsearch, OpenSearch              |
+| Hybrid search                | Combining lexical and semantic retrieval.                                | OpenSearch, Qdrant                     |
+| Reranking                    | Reordering retrieved candidates using a stronger relevance evaluator.    | Cross-encoder reranker                 |
+| Top-K retrieval              | Retrieving the K highest-ranked candidates.                              | Vector search limit                    |
+| Metadata filtering           | Restricting retrieval according to document attributes.                  | Qdrant filters, SQL predicates         |
+| Tenant namespace             | Logical partition separating tenant-specific knowledge.                  | Vector collections, namespaces         |
+| Document-level authorization | Validating access to individual documents.                               | ACL metadata, OPA                      |
+| Pre-retrieval authorization  | Restricting searchable resources before retrieval.                       | Tenant and ACL filters                 |
+| Post-retrieval authorization | Rechecking permissions before retrieved content is exposed.              | Authoritative permission service       |
+| Knowledge freshness          | Degree to which retrieved information reflects current source content.   | Version checks, update events          |
+| Stale permissions            | Stored access metadata that no longer reflects current authorization.    | Revocation events, ACL revalidation    |
+| Index versioning             | Maintaining identifiable versions of retrieval indexes.                  | Versioned collections, aliases         |
+| Embedding migration          | Rebuilding vectors using a different embedding model.                    | Parallel indexes, controlled cutover   |
+| Incremental indexing         | Updating changed documents rather than rebuilding the entire index.      | Kafka events, upsert operations        |
+| Document provenance          | Information describing a document's source and version.                  | Source ID, timestamp, version metadata |
+| Grounding                    | Anchoring generated responses in approved evidence.                      | RAG context, citation validation       |
+| Data lineage                 | Tracking how information moves through processing stages.                | Metadata records, trace IDs            |
+
+## **8. Agent memory and context engineering**
+
+| Keyword                    | One-line definition                                                 | How to implement / Tech stack        |
+| -------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
+| Session memory             | Recent conversation context associated with a session.              | Redis, session store                 |
+| Short-term memory          | Temporary information needed during current interactions.           | Redis, bounded message history       |
+| Long-term memory           | Persisted reusable information across sessions.                     | PostgreSQL, governed retrieval       |
+| Episodic memory            | Stored records of previous interactions or experiences.             | Structured event store               |
+| Semantic memory            | Reusable factual knowledge independent of a specific interaction.   | Knowledge store, vector index        |
+| Working memory             | Information actively available to an agent during execution.        | Runtime context, state object        |
+| Durable state              | Persisted execution information surviving process failures.         | PostgreSQL, Temporal                 |
+| Conversation summarization | Condensing previous messages into a shorter representation.         | LLM summarizer                       |
+| Context engineering        | Constructing task-specific model inputs using relevant information. | Context builder, retrieval, budgets  |
+| Context hydration          | Loading required memory and state into the current execution.       | PostgreSQL, Redis, retrieval service |
+| Sliding context window     | Retaining a bounded portion of recent conversation.                 | Token-aware history buffer           |
+| Structured memory          | Persisting important facts as typed records.                        | Pydantic, PostgreSQL JSONB           |
+| Memory provenance          | Tracking where stored information originated.                       | Source IDs, timestamps               |
+| Memory lifecycle           | Managing memory creation, retrieval, correction and deletion.       | Retention policies, CRUD services    |
+| Data retention             | Rules defining how long information may be stored.                  | Database policies, S3 lifecycle      |
+| Memory isolation           | Preventing unauthorized access to another tenant's memory.          | Tenant keys, RLS, IAM                |
+
+## **9. Evaluation framework and AI quality metrics**
+
+| Keyword                    | One-line definition                                                  | How to implement / Tech stack            |
+| -------------------------- | -------------------------------------------------------------------- | ---------------------------------------- |
+| Evaluation harness         | Automated framework for measuring AI system quality.                 | Pytest, Phoenix, DeepEval                |
+| Component evaluation       | Testing individual agents, tools, models or retrieval services.      | Pytest, component datasets               |
+| Workflow evaluation        | Testing complete multi-agent business workflows.                     | End-to-end golden datasets               |
+| Production evaluation      | Measuring quality using real production interactions.                | Phoenix, Langfuse                        |
+| Evaluation as a Service    | Centralized service providing reusable evaluation capabilities.      | FastAPI, Pytest workers                  |
+| Golden dataset             | Curated test dataset containing expected outcomes.                   | JSONL, CSV, versioned storage            |
+| Positive test case         | Test verifying expected successful behavior.                         | Pytest assertions                        |
+| Negative test case         | Test verifying correct rejection of invalid operations.              | Invalid inputs, denied permissions       |
+| Adversarial test case      | Test deliberately designed to challenge security or reliability.     | Prompt-injection datasets                |
+| Synthetic test data        | Artificially generated data representing target scenarios.           | Faker, LLM generation, human review      |
+| Regression testing         | Verifying that changes do not break previously correct behavior.     | Pytest, CI/CD                            |
+| Baseline evaluation        | Reference measurements used to compare candidate releases.           | Versioned evaluation reports             |
+| Dataset contamination      | Leakage of evaluation examples into training or development data.    | Held-out datasets, access controls       |
+| Evaluation reproducibility | Ability to repeat evaluations under equivalent conditions.           | Version pinning, stored parameters       |
+| Routing accuracy           | Proportion of requests assigned to the correct execution route.      | Expected-versus-actual route comparison  |
+| Incorrect routing rate     | Proportion of requests routed incorrectly.                           | Confusion matrix, Python                 |
+| Tool selection accuracy    | Proportion of requests using an appropriate tool.                    | Expected tool-call assertions            |
+| Tool argument accuracy     | Correctness of parameters supplied to a tool.                        | Pydantic, expected-value comparison      |
+| Unnecessary tool calls     | Tool invocations not required to complete the task.                  | Trace analysis, expected-call comparison |
+| Schema compliance          | Extent to which outputs conform to defined structures.               | Pydantic, JSON Schema                    |
+| Task success rate          | Proportion of tasks achieving the expected business outcome.         | End-to-end assertions                    |
+| Recall\@K                  | Fraction of all known relevant documents retrieved in the top K.     | Python, retrieval evaluation dataset     |
+| Precision\@K               | Fraction of top-K retrieved documents that are relevant.             | Python, relevance labels                 |
+| nDCG                       | Normalized measure of ranked retrieval quality.                      | scikit-learn `ndcg_score`                |
+| MRR                        | Mean reciprocal rank of the first relevant result.                   | Python ranking evaluator                 |
+| Retrieval relevance        | How useful retrieved documents are for the requested task.           | Human labels, semantic evaluator         |
+| Context relevance          | Degree to which supplied context supports the current question.      | RAG evaluation metrics                   |
+| Faithfulness               | Extent to which an answer is supported by supplied evidence.         | Claim-level evidence evaluation          |
+| Groundedness               | Degree to which generated claims are anchored in approved sources.   | Citation and entailment checks           |
+| Hallucination              | Generated factual claim that is unsupported or incorrect.            | Evidence comparison, human review        |
+| Hallucination rate         | Proportion of evaluated claims or answers containing hallucinations. | Claim extraction, evidence evaluator     |
+| LLM-as-a-Judge             | Using a language model to evaluate another model's output.           | Structured rubric, evaluator LLM         |
+| Deterministic evaluator    | Rule-based evaluator producing predictable validation results.       | Pytest, schema validation                |
+| Hybrid evaluation          | Combining deterministic checks and semantic evaluators.              | Pytest + Phoenix + LLM judge             |
+| Judge bias                 | Systematic preference affecting an LLM evaluator's judgments.        | Randomized ordering, calibration         |
+| Judge calibration          | Aligning automated evaluation scores with trusted human judgments.   | Human-labelled benchmark                 |
+| Inter-rater agreement      | Degree of consistency between evaluators.                            | Cohen's kappa, agreement metrics         |
+| Confidence threshold       | Minimum acceptable confidence for an automated decision.             | Calibrated scores, validation rules      |
+| Behavioral drift           | Change in model or agent behavior over time.                         | Continuous benchmark comparison          |
+| Data drift                 | Change in the statistical characteristics of input data.             | Evidently, distribution monitoring       |
+| User feedback              | Explicit or implicit information about user experience and quality.  | Feedback API, Phoenix annotations        |
+| Evaluation sampling        | Selecting representative production interactions for assessment.     | Random or risk-based sampling            |
+| Continuous evaluation      | Repeated assessment throughout development and production.           | Scheduled evaluation workers             |
+| Security evaluation        | Testing resistance to unauthorized or unsafe operations.             | Pytest, adversarial security suites      |
+| Release gate               | Mandatory quality or security conditions for deployment approval.    | CI/CD thresholds, YAML policies          |
+| Security release blocker   | Security failure that prevents production promotion.                 | Mandatory pipeline failure               |
+| Quality regression         | Reduction in measured quality compared with a baseline.              | Baseline comparison, alerts              |
+
+## **10. MCP gateway and advanced agent security**
+
+| Keyword                    | One-line definition                                                            | How to implement / Tech stack                |
+| -------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------- |
+| MCP                        | Model Context Protocol standardizes access to tools and contextual resources.  | MCP Python SDK                               |
+| MCP client                 | Component connecting a host application to MCP servers.                        | MCP client SDK                               |
+| MCP server                 | Service exposing MCP tools, resources or prompts.                              | FastMCP, Python SDK                          |
+| MCP host                   | Application coordinating MCP clients and model interactions.                   | Agent runtime, MCP client manager            |
+| MCP gateway                | Central enforcement layer governing MCP access and execution.                  | FastAPI MCP proxy, OPA                       |
+| MCP proxy                  | Intermediary forwarding and validating MCP communications.                     | MCP SDK, gateway middleware                  |
+| Tool discovery             | Finding available tools and their contracts.                                   | MCP `tools/list`                             |
+| Tool invocation            | Requesting execution of a registered tool.                                     | MCP `tools/call`                             |
+| Tool schema                | Typed specification of tool arguments and results.                             | JSON Schema, Pydantic                        |
+| Tool allowlist             | Explicit list of tools an agent may potentially invoke.                        | YAML, agent registry                         |
+| Tool-response validation   | Checking returned data against expected contracts and security rules.          | Pydantic, output filters                     |
+| Tool poisoning             | Manipulation of tool descriptions or metadata to influence agents.             | Approved tool registry, integrity checks     |
+| Gateway bypass             | Accessing protected services without required enforcement.                     | IAM restrictions, network policies           |
+| Direct prompt injection    | Malicious instructions supplied directly through user input.                   | Input controls, deterministic enforcement    |
+| Indirect prompt injection  | Malicious instructions embedded in retrieved content or tool responses.        | Untrusted-content isolation                  |
+| Instruction hierarchy      | Ordering instructions according to their authority.                            | Runtime-controlled message roles             |
+| Data exfiltration          | Unauthorized transmission of protected information.                            | Egress controls, DLP, destination checks     |
+| DLP                        | Data Loss Prevention detects and restricts sensitive-data exposure.            | Microsoft Purview, data classifiers          |
+| SSRF                       | Server-Side Request Forgery abuses a service to reach unintended destinations. | URL validation, network restrictions         |
+| Destination authorization  | Verifying whether information may be sent to a particular destination.         | OPA, destination allowlists                  |
+| Credential rotation        | Replacing credentials periodically or after security events.                   | Vault, Secrets Manager                       |
+| Credential revocation      | Invalidating previously issued access credentials.                             | Identity provider, revocation policies       |
+| Short-lived credentials    | Access credentials that expire after a limited period.                         | OAuth tokens, AWS STS                        |
+| Token replay               | Reusing a captured token to perform unauthorized requests.                     | Token binding, nonce checks where applicable |
+| Agent impersonation        | Fraudulently acting as another registered agent.                               | Workload identity, mTLS                      |
+| Deny by default            | Rejecting access unless an explicit policy permits it.                         | OPA default-deny policies                    |
+| Policy caching             | Temporarily storing policy data or authorization decisions.                    | OPA bundles, bounded cache TTL               |
+| Separation of duties       | Dividing sensitive responsibilities across independent identities.             | RBAC, approval workflows                     |
+| Tamper-resistant approval  | Approval bound to an operation and protected from unauthorized modification.   | Signed approval records                      |
+| Approval expiration        | Time limit after which an approval is invalid.                                 | Timestamp validation                         |
+| Transaction limits         | Maximum permitted size or frequency of business operations.                    | Policy engine, atomic counters               |
+| Tamper-evident audit log   | Audit record designed to reveal unauthorized modification.                     | Hash chaining, immutable storage             |
+| Abnormal agent behavior    | Execution deviating from expected security or operational patterns.            | Anomaly detection, trace monitoring          |
+| Security incident response | Coordinated containment and recovery from security events.                     | SIEM, SOAR, incident runbooks                |
+
+## **11. Observability and monitoring**
+
+| Keyword             | One-line definition                                                | How to implement / Tech stack       |
+| ------------------- | ------------------------------------------------------------------ | ----------------------------------- |
+| Observability       | Understanding internal system behavior from emitted telemetry.     | OpenTelemetry, Grafana              |
+| Telemetry           | Operational data emitted by applications and infrastructure.       | OpenTelemetry SDK                   |
+| Distributed tracing | Tracking a request across multiple distributed components.         | OpenTelemetry, Jaeger               |
+| Trace ID            | Identifier correlating operations within a distributed request.    | W3C Trace Context                   |
+| Span                | Recorded representation of an individual operation.                | OpenTelemetry spans                 |
+| Span ID             | Unique identifier for a specific traced operation.                 | OpenTelemetry                       |
+| Correlation ID      | Identifier linking related requests, events or records.            | Gateway-generated UUID              |
+| Trace propagation   | Passing trace context between services.                            | HTTP headers, gRPC metadata         |
+| Structured logging  | Recording logs using machine-readable fields.                      | JSON logging, Structlog             |
+| Metrics             | Numerical measurements of system behavior.                         | Prometheus, CloudWatch              |
+| Log aggregation     | Collecting logs from distributed services centrally.               | OpenSearch, Loki                    |
+| Counter             | Metric representing an accumulating event count.                   | Prometheus Counter                  |
+| Gauge               | Metric representing a value that can increase or decrease.         | Prometheus Gauge                    |
+| Histogram           | Metric recording a distribution of measured values.                | Prometheus Histogram                |
+| Critical path       | Chain of dependent operations determining overall completion time. | Distributed trace analysis          |
+| TTFT                | Time to First Token measures delay before model output begins.     | Inference gateway instrumentation   |
+| Inter-token latency | Time between successive generated output tokens.                   | vLLM, streaming telemetry           |
+| Error rate          | Proportion of operations ending in errors.                         | Prometheus, gateway metrics         |
+| Saturation          | Degree to which available resource capacity is consumed.           | CPU, GPU, connection-pool metrics   |
+| Cache-hit rate      | Proportion of requests successfully served from cache.             | Redis statistics                    |
+| Consumer lag        | Number of messages by which a consumer trails the producer.        | Kafka consumer metrics              |
+| SLI                 | Service Level Indicator is a measured reliability characteristic.  | Availability and latency metrics    |
+| SLO                 | Service Level Objective is a target for an SLI.                    | SLO dashboards, alert rules         |
+| SLA                 | Service Level Agreement is a contractual service commitment.       | Compliance reporting                |
+| Error budget        | Amount of unreliability permitted by an SLO.                       | SLO-based error-budget tracking     |
+| Root-cause analysis | Identifying underlying causes of a production problem.             | Traces, logs, deployment comparison |
+| Alerting            | Notifying operators when monitored conditions violate thresholds.  | Alertmanager, PagerDuty             |
+| Phoenix             | AI observability and evaluation platform.                          | Arize Phoenix, OpenTelemetry        |
+| Langfuse            | Platform for LLM tracing, evaluations and prompt management.       | Langfuse SDK                        |
+
+## **12. Self-hosted models, GPU infrastructure and inference**
+
+| Keyword              | One-line definition                                                       | How to implement / Tech stack    |
+| -------------------- | ------------------------------------------------------------------------- | -------------------------------- |
+| Managed LLM          | Model accessed through provider-managed infrastructure.                   | Bedrock, OpenAI API, Vertex AI   |
+| Self-hosted LLM      | Model deployed on organization-managed infrastructure.                    | vLLM, GPU-backed Kubernetes      |
+| Open-weight model    | Model whose trained weights are available under applicable terms.         | Llama, Qwen, Gemma               |
+| Inference            | Running a trained model to generate predictions or responses.             | PyTorch, vLLM, ONNX Runtime      |
+| Inference server     | Service exposing trained models through callable interfaces.              | vLLM, NVIDIA Triton              |
+| Model parameter      | Learned numerical value determining model behavior.                       | PyTorch tensors                  |
+| Model weights        | Collection of trained numerical parameters.                               | Safetensors, PyTorch             |
+| Quantization         | Representing model parameters or computation using reduced precision.     | torchao, GPTQ, AWQ               |
+| FP32                 | 32-bit floating-point numerical representation.                           | PyTorch FP32                     |
+| FP16                 | 16-bit floating-point numerical representation.                           | PyTorch, CUDA                    |
+| BF16                 | 16-bit floating-point format with a wider exponent range than FP16.       | PyTorch, compatible accelerators |
+| INT8                 | Eight-bit integer representation used in quantized computation.           | ONNX Runtime, torchao            |
+| INT4                 | Four-bit integer representation used to reduce model-weight storage.      | AWQ, GPTQ                        |
+| GPU                  | Parallel accelerator suitable for tensor computations.                    | NVIDIA CUDA GPUs                 |
+| VRAM                 | GPU memory holding weights, caches and intermediate computations.         | GPU memory monitoring            |
+| CUDA                 | NVIDIA platform for GPU-accelerated computing.                            | PyTorch CUDA                     |
+| KV cache             | Stored attention keys and values reused during token generation.          | vLLM, Transformers               |
+| PagedAttention       | Block-based attention-cache management improving memory utilization.      | vLLM                             |
+| Prefill              | Processing prompt tokens before autoregressive generation.                | vLLM inference engine            |
+| Decode               | Generating subsequent output tokens autoregressively.                     | LLM inference runtime            |
+| Continuous batching  | Dynamically scheduling requests into active inference batches.            | vLLM                             |
+| GPU utilization      | Proportion of GPU processing capacity being used.                         | NVIDIA DCGM, nvidia-smi          |
+| Inference throughput | Amount of inference work completed per unit of time.                      | Tokens/second, requests/second   |
+| Tensor parallelism   | Distributing model tensor computations across devices.                    | vLLM, Megatron                   |
+| Model parallelism    | Distributing model computation or parameters across devices.              | PyTorch Distributed              |
+| GPU autoscaling      | Adjusting inference-replica capacity according to demand.                 | Kubernetes, KEDA, GPU metrics    |
+| TCO                  | Total Cost of Ownership includes infrastructure and operational expenses. | Cost model, usage measurements   |
+| Break-even point     | Workload level at which two alternatives have equal cost.                 | TCO and throughput comparison    |
+| Hybrid inference     | Combining managed and self-hosted model deployments.                      | LiteLLM, policy-driven routing   |
+
+## **13. Deployment, migration and disaster recovery**
+
+| Keyword                   | One-line definition                                                             | How to implement / Tech stack          |
+| ------------------------- | ------------------------------------------------------------------------------- | -------------------------------------- |
+| CI                        | Continuous Integration automatically validates integrated changes.              | Jenkins, GitHub Actions                |
+| CD                        | Continuous Delivery or Deployment automates release preparation or promotion.   | Spinnaker, Argo CD                     |
+| Containerization          | Packaging an application with its runtime dependencies.                         | Docker, OCI                            |
+| Kubernetes                | Platform for orchestrating containerized workloads.                             | EKS, AKS, GKE                          |
+| ECS Fargate               | AWS-managed compute for running containers without managing servers.            | ECS task definitions                   |
+| Immutable artifact        | Deployment package that is not modified after publication.                      | OCI images, versioned repositories     |
+| Signed configuration      | Configuration artifact whose integrity and origin can be verified.              | KMS signatures, Cosign                 |
+| Canary deployment         | Releasing a candidate version to a limited traffic subset.                      | Argo Rollouts, Spinnaker               |
+| Blue-green deployment     | Maintaining two environments and switching traffic between them.                | ALB, Kubernetes services               |
+| Shadow testing            | Evaluating candidate behavior using copied traffic without real side effects.   | Traffic mirroring, sandbox tools       |
+| Progressive rollout       | Gradually increasing traffic to a validated release.                            | Argo Rollouts, feature flags           |
+| Rollback                  | Restoring a previously approved compatible version.                             | Deployment pipeline, version pointers  |
+| Automatic rollback        | Reverting deployment when defined regression thresholds are breached.           | Canary analysis, CI/CD                 |
+| Feature flag              | Runtime switch controlling availability of application functionality.           | Unleash, LaunchDarkly                  |
+| Contract testing          | Verifying compatibility between service interfaces.                             | Pact, JSON Schema tests                |
+| Backward compatibility    | Allowing older consumers to continue using newer services.                      | Versioned APIs, compatibility adapters |
+| Expand–migrate–contract   | Introducing changes alongside legacy interfaces before retiring them.           | Versioned APIs, staged migrations      |
+| Credential exchange       | Exchanging validated credentials for appropriately scoped credentials.          | OAuth token exchange                   |
+| Zero-downtime migration   | Changing infrastructure or contracts without planned service interruption.      | Parallel versions, progressive rollout |
+| Availability zone         | Isolated infrastructure location within a cloud region.                         | AWS multi-AZ deployment                |
+| Multi-region architecture | Deploying application capabilities across geographical regions.                 | Regional ECS/EKS clusters              |
+| Active-active             | Multiple environments simultaneously serving production traffic.                | Global routing, regional deployments   |
+| Active-passive            | Primary environment serving traffic with standby recovery capacity.             | Regional standby infrastructure        |
+| Failover                  | Moving operations to an available recovery environment.                         | Route 53, health checks                |
+| Failback                  | Returning operations to the recovered preferred environment.                    | Controlled traffic migration           |
+| RPO                       | Recovery Point Objective defines targeted maximum acceptable data loss in time. | Replication, backup policies           |
+| RTO                       | Recovery Time Objective defines targeted service-restoration duration.          | Automated recovery, standby capacity   |
+| Disaster recovery         | Restoring critical services after major infrastructure disruption.              | Replication, recovery runbooks         |
+| Data replication          | Maintaining copies of data across approved infrastructure.                      | PostgreSQL replication, Aurora         |
+| Multi-writer database     | Database topology permitting writes at multiple locations.                      | Distributed SQL, consistency controls  |
+| Split brain               | Multiple isolated systems incorrectly acting as authoritative writers.          | Quorum, fencing, leader election       |
+| Disaster-recovery testing | Validating recovery procedures against simulated failures.                      | Game days, fault injection             |
+
+## **14. Distributed systems and data infrastructure**
+
+| Keyword                   | One-line definition                                                           | How to implement / Tech stack           |
+| ------------------------- | ----------------------------------------------------------------------------- | --------------------------------------- |
+| Redis                     | In-memory data store commonly used for caching and coordination.              | Redis Cluster, ElastiCache              |
+| PostgreSQL                | Relational database supporting durable transactional storage.                 | PostgreSQL, Aurora                      |
+| JSONB                     | PostgreSQL binary representation for JSON documents.                          | JSONB columns, GIN indexes              |
+| Row-Level Security        | Database policies restricting access to individual rows.                      | PostgreSQL RLS policies                 |
+| Kafka                     | Distributed event-streaming platform.                                         | Kafka, Amazon MSK                       |
+| SQS                       | AWS-managed message-queue service.                                            | Standard or FIFO queues                 |
+| SNS                       | AWS-managed publish-subscribe notification service.                           | SNS topics, SQS subscriptions           |
+| Event-driven architecture | Architecture reacting to asynchronously published events.                     | Kafka, SNS/SQS                          |
+| Producer                  | Component publishing events or messages.                                      | Kafka producer SDK                      |
+| Consumer                  | Component receiving and processing messages.                                  | Kafka consumer SDK                      |
+| Consumer group            | Set of consumers coordinating processing of topic partitions.                 | Kafka consumer groups                   |
+| Partition                 | Subdivision of stored data or an event stream.                                | Kafka partitions, database partitioning |
+| Sharding                  | Distributing data across separate storage instances.                          | Tenant-based database shards            |
+| ACID                      | Atomicity, Consistency, Isolation and Durability guarantees for transactions. | PostgreSQL transactions                 |
+| Atomic operation          | Operation that completes indivisibly within its defined boundary.             | SQL transactions, Redis Lua             |
+| Eventual consistency      | Replicas converge over time when updates cease.                               | Asynchronous replication                |
+| Strong consistency        | Reads observe writes according to a strict consistency guarantee.             | Consensus-based database systems        |
+| CDC                       | Change Data Capture publishes changes from a data source.                     | Debezium, PostgreSQL WAL                |
+| Event sourcing            | Persisting state changes as events from which state can be reconstructed.     | Event store, Kafka                      |
+| Distributed cache         | Shared caching layer accessible by multiple services.                         | Redis Cluster                           |
+| Cache-aside               | Application loads missing cache entries from the underlying data source.      | Redis + PostgreSQL                      |
+| Service discovery         | Locating available service instances dynamically.                             | Kubernetes DNS, Cloud Map               |
+| Service mesh              | Infrastructure layer managing service-to-service communication.               | Istio, Envoy                            |
+| Private endpoint          | Network endpoint enabling access without public internet exposure.            | AWS PrivateLink, VPC endpoints          |
+| Health check              | Test determining whether a service is ready or functioning.                   | Kubernetes probes, ALB checks           |
+| Leader election           | Coordinating selection of a single active leader.                             | Kubernetes leases, etcd                 |
+
+## **15. Technical strategy and engineering leadership**
+
+| Keyword                     | One-line definition                                                       | How to implement / Practical mechanism      |
+| --------------------------- | ------------------------------------------------------------------------- | ------------------------------------------- |
+| Technical strategy          | Long-term technology choices aligned with business objectives.            | Architecture roadmap, capability assessment |
+| Build versus buy            | Deciding whether to develop or acquire a capability.                      | TCO, security and differentiation analysis  |
+| Platform engineering        | Building reusable capabilities for internal engineering teams.            | Shared services, SDKs, developer portal     |
+| Platform as a product       | Managing an internal platform around customer needs and measurable value. | Product roadmap, adoption metrics           |
+| Commodity capability        | Widely available capability offering limited differentiation.             | Adopt established tools or services         |
+| Differentiating capability  | Capability creating meaningful organizational or competitive value.       | Targeted internal investment                |
+| Technical debt              | Future engineering cost resulting from present design compromises.        | Debt register, prioritized remediation      |
+| ADR                         | Architecture Decision Record documents decisions and trade-offs.          | Version-controlled Markdown                 |
+| MVP                         | Minimum Viable Product delivering enough value to validate assumptions.   | Limited-scope platform release              |
+| Proof of Concept            | Experiment validating technical feasibility.                              | Prototype, benchmark                        |
+| Pilot                       | Limited real-world deployment evaluating business and technical outcomes. | Controlled user rollout                     |
+| ROI                         | Return on Investment measures net benefit relative to investment.         | Financial model, measured outcomes          |
+| Unit economics              | Costs and benefits associated with individual units of business activity. | Cost per successful task                    |
+| Developer velocity          | Rate at which engineering teams deliver useful changes.                   | Delivery lead time, throughput metrics      |
+| Developer experience        | Ease and effectiveness of working with development infrastructure.        | SDKs, documentation, self-service           |
+| Time to production          | Time required to move a capability into production.                       | Delivery-pipeline measurements              |
+| Platform adoption           | Extent to which teams actively use shared platform capabilities.          | Active teams, integrated agents             |
+| Architecture governance     | Processes ensuring architectural decisions satisfy enterprise standards.  | ADR reviews, policy gates                   |
+| Stakeholder alignment       | Establishing shared objectives among affected decision-makers.            | Working groups, agreed success criteria     |
+| Influence without authority | Driving decisions without relying on direct managerial control.           | Evidence, pilots, consensus                 |
+| Engineering scorecard       | Collection of metrics measuring engineering outcomes.                     | Grafana, reporting dashboards               |
+| Organizational autonomy     | Teams retaining ownership within agreed enterprise constraints.           | Federated governance, shared contracts      |
+| Propensity model            | Predictive model estimating likelihood of a business outcome.             | XGBoost, scikit-learn, PyTorch              |
+| Eligibility policy          | Deterministic rule establishing whether an action or resource qualifies.  | OPA, business rule engine                   |
+| Constrained optimization    | Selecting the best outcome within mandatory constraints.                  | Python filtering, optimization algorithms   |
+| Business outcome            | Measurable result that creates value for the organization.                | Domain-specific KPIs                        |
+| Incident commander          | Person coordinating incident containment and recovery.                    | Incident-management process                 |
+| SEV-1                       | Highest or critical incident severity in many organizations.              | Organization-specific incident policy       |
+| Postmortem                  | Structured review of incident causes, impact and corrective actions.      | RCA document, action tracker                |
+| Runbook                     | Documented procedures for operational tasks and incident recovery.        | Markdown, operational playbooks             |
+
+# **16. Important interview formulas**
+
+| Metric                   | Formula                                            |
+| ------------------------ | -------------------------------------------------- |
+| Requests per second      | RPM ÷ 60                                           |
+| Concurrent workflows     | Arrival rate × average duration                    |
+| Model calls per minute   | RPM × model calls per workflow                     |
+| Tokens per minute        | Model calls per minute × average tokens            |
+| Task success rate        | Successful tasks ÷ total tasks × 100               |
+| Routing accuracy         | Correct routes ÷ total requests × 100              |
+| Error rate               | Failed requests ÷ total requests × 100             |
+| Recall\@K                | Relevant retrieved ÷ total relevant documents      |
+| Precision\@K             | Relevant retrieved ÷ K                             |
+| MRR                      | Mean of reciprocal ranks of first relevant results |
+| Cache-hit rate           | Cache hits ÷ total cache lookups × 100             |
+| Cost per successful task | Total cost ÷ successful tasks                      |
+| Cost reduction           | (Old cost − new cost) ÷ old cost × 100             |
+| Raw model-weight memory  | Parameter count × bytes per parameter              |
+| ROI                      | (Total benefits − investment) ÷ investment × 100   |
+| Availability             | Available time ÷ total measured time × 100         |
+
+# **17. Most important 30 keywords to memorize**
+
+For Principal Engineer and AI Engineering Director interviews, prioritize these concepts.
+
+### **Technical revision tracker**
+
+## **0/30**
+
+1\. Control plane
+
+2\. Execution plane
+
+3\. Zero Trust
+
+4\. PDP and PEP
+
+5\. Least privilege
+
+6\. Least agency
+
+7\. Delegated authorization
+
+8\. Workload identity
+
+9\. Confused deputy
+
+10\. MCP gateway
+
+11\. A2A protocol
+
+12\. DAG validation
+
+13\. Deterministic routing
+
+14\. Durable workflow state
+
+15\. Idempotency
+
+16\. Transaction reconciliation
+
+17\. Circuit breaker
+
+18\. Backpressure
+
+19\. Little's Law
+
+20\. Model gateway
+
+21\. Token-budget enforcement
+
+22\. Permission-aware RAG
+
+23\. Context engineering
+
+24\. Golden dataset
+
+25\. LLM-as-a-Judge
+
+26\. Evaluation release gate
+
+27\. OpenTelemetry
+
+28\. Canary deployment
+
+29\. RPO and RTO
+
+30\. Cost per successful business task
+
+Reset tracker
+
+# **18. Complete technology stack — quick revision**
+
+| Technology    | Primary responsibility                   |
+| ------------- | ---------------------------------------- |
+| Python        | Agent and platform implementation        |
+| FastAPI       | API and gateway services                 |
+| Google ADK    | Multi-agent orchestration                |
+| LangGraph     | Graph-based agent workflows              |
+| Temporal      | Durable workflow execution               |
+| MCP           | Tool and contextual resource integration |
+| A2A           | Inter-agent communication                |
+| LiteLLM       | Unified model-provider access            |
+| OPA           | Policy decision-making                   |
+| Rego          | Policy definitions                       |
+| Pydantic      | Typed data validation                    |
+| PostgreSQL    | Durable state and registries             |
+| Redis         | Caching, quotas and coordination         |
+| Kafka         | Distributed event streaming              |
+| SQS           | Asynchronous message processing          |
+| Qdrant        | Vector storage and retrieval             |
+| pgvector      | PostgreSQL vector search                 |
+| PyTorch       | Model training and experimentation       |
+| vLLM          | High-throughput LLM serving              |
+| NVIDIA Triton | Model inference serving                  |
+| ONNX Runtime  | Optimized model inference                |
+| ExecuTorch    | On-device PyTorch inference              |
+| OpenTelemetry | Distributed telemetry                    |
+| Arize Phoenix | AI observability and evaluation          |
+| Langfuse      | LLM tracing and evaluation               |
+| Prometheus    | Metrics collection                       |
+| Grafana       | Operational dashboards                   |
+| Docker        | Application containerization             |
+| Kubernetes    | Container orchestration                  |
+| ECS Fargate   | Managed container execution              |
+| Terraform     | Infrastructure provisioning              |
+| Pytest        | Automated testing and evaluation         |
+| Jenkins       | CI/CD automation                         |
+| Spinnaker     | Progressive application deployment       |
+
+**Source and coverage:** This consolidated glossary follows your 19 scenario chapters and six technical question banks, with duplicate concepts merged. The PDF provides the core architectural terminology and reference technology stack; I have also included related implementation concepts and illustrative technologies to make this more useful for interviews. It is a consolidated revision guide rather than a verbatim reproduction of all 365 questions.
+
+**Interview technique:** For every keyword, practice answering in three steps: what it means, how you implement it, and which production problem it solves.
