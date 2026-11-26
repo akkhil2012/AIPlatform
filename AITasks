@@ -1,0 +1,575 @@
+# **Enterprise Agentic AI — Hands-on Mini Projects**
+
+The objective is to convert the technical concepts from your interview handbook into **small, independently executable Python projects that demonstrate and validate one architectural concept at a time.**
+
+Each project should be small enough to implement, demonstrate and explain during a Principal Engineer or AI Architect interview.
+
+## **Common implementation guidelines**
+
+- Target 30–100 lines of core Python code per project wherever practical.
+- Use a single LLM call wherever sufficient.
+- Use deterministic Python logic for authorization, validation and business rules.
+- Avoid unnecessary infrastructure, databases and UI development.
+- Include positive and negative test cases using Pytest.
+- Keep each project independently executable.
+
+### **Minimal technology stack**
+
+| Technology    | Purpose                                |
+| ------------- | -------------------------------------- |
+| Python        | Core implementation                    |
+| LiteLLM       | Common LLM interface                   |
+| Pydantic      | Typed contracts and validation         |
+| Pytest        | Concept validation                     |
+| SQLite        | Durable state and execution ledger     |
+| YAML          | Agent and policy configuration         |
+| asyncio       | Concurrent execution                   |
+| FastAPI       | Gateway demonstrations                 |
+| NetworkX      | DAG validation                         |
+| MCP SDK       | Tool integration                       |
+| NumPy         | Embeddings and similarity calculations |
+| OpenTelemetry | Distributed tracing                    |
+
+Use a mock LLM for repeatable automated tests and a real LLM for demonstrations. External infrastructure should be introduced only when the concept specifically requires it.
+
+# **Module 1 — Agent architecture and orchestration**
+
+**Task 01 — Basic AI agent**
+
+Concept: LLM-driven tool selection.
+
+Build: Create an agent with calculator and weather mock tools.
+
+Validate: The agent selects the correct tool for different requests.
+
+Stack: Python, LiteLLM, Pydantic.
+
+30 min
+
+**Task 02 — Supervisor and specialist agents**
+
+Concept: Hierarchical orchestration.
+
+Build: Create a supervisor delegating requests to finance and marketing agents.
+
+Validate: Requests reach the correct specialist.
+
+Stack: Python, LiteLLM.
+
+45 min
+
+**Task 03 — Deterministic routing**
+
+Concept: Routing without model inference.
+
+Build: Route structured campaign requests using Python rules.
+
+Validate: Known intents require zero LLM calls.
+
+Stack: Python, YAML, Pytest.
+
+20 min
+
+**Task 04 — Hybrid routing**
+
+Concept: Deterministic routing with LLM fallback.
+
+Build: Use rules first and invoke an LLM only for ambiguous requests.
+
+Validate: Compare routing accuracy and model-call count.
+
+Stack: Python, LiteLLM.
+
+30 min
+
+**Task 05 — Agent registry**
+
+Concept: Capability-based agent discovery.
+
+Build: Register three agents using YAML and discover them by capability.
+
+Validate: Unknown or unavailable agents are rejected.
+
+Stack: Python, YAML.
+
+20 min
+
+**Task 06 — Typed agent contracts**
+
+Concept: Structured agent input and output.
+
+Build: Make an LLM return campaign metrics using a Pydantic schema.
+
+Validate: Missing fields and invalid types are rejected.
+
+Stack: Python, Pydantic, LiteLLM.
+
+20 min
+
+**Task 07 — Control plane and execution plane**
+
+Concept: Separation of configuration and execution.
+
+Build: Store agent definitions in YAML and load them into an independent Python runtime.
+
+Validate: Change an agent's configuration without modifying execution code.
+
+Stack: Python, YAML, Pydantic.
+
+30 min
+
+**Task 08 — Configuration version pinning**
+
+Concept: Consistent execution across configuration updates.
+
+Build: Create V1 and V2 agent definitions and pin each workflow to its starting version.
+
+Validate: Existing workflows retain V1 while new workflows use V2.
+
+Stack: Python, YAML.
+
+20 min
+
+**Task 09 — Parallel agent execution**
+
+Concept: Concurrent execution of independent agents.
+
+Build: Execute two simulated specialist agents sequentially and concurrently.
+
+Validate: Compare elapsed execution times.
+
+Stack: Python asyncio.
+
+20 min
+
+**Task 10 — A2A communication**
+
+Concept: Communication between independent agents.
+
+Build: Create two small agent services and delegate a task through an A2A interface.
+
+Validate: Typed task results and controlled failure handling.
+
+Stack: Python, A2A SDK.
+
+60 min
+
+# **Module 2 — Identity, security and governance**
+
+| Task | Concept                 | Mini project                                                       | Validation                                           | Tech stack                |
+| ---- | ----------------------- | ------------------------------------------------------------------ | ---------------------------------------------------- | ------------------------- |
+| 11   | JWT authentication      | Generate and verify signed access tokens.                          | Reject expired, modified and wrong-audience tokens.  | PyJWT                     |
+| 12   | RBAC                    | Create admin, analyst and viewer roles.                            | Viewer cannot execute admin operations.              | Python, YAML              |
+| 13   | ABAC                    | Authorize requests using tenant, role and resource attributes.     | Reject mismatched tenant attributes.                 | Python policy engine      |
+| 14   | PDP and PEP             | Separate policy evaluation from tool execution.                    | Denied requests never reach the tool.                | Python, decorators        |
+| 15   | Least privilege         | Assign different permissions to two agents.                        | Read-only agent cannot export data.                  | Python, YAML              |
+| 16   | Least agency            | Restrict an LLM agent to three approved operations.                | Unsupported actions are rejected.                    | LiteLLM, Python           |
+| 17   | Delegated authorization | Intersect user permissions with agent capabilities.                | Agent cannot inherit additional user privileges.     | Python sets               |
+| 18   | Tenant isolation        | Store records belonging to two tenants.                            | Tenant A cannot retrieve Tenant B's records.         | SQLite, Python            |
+| 19   | Zero Trust              | Authenticate and authorize every protected tool call.              | Reject forged identity and unauthorized operations.  | PyJWT, Python             |
+| 20   | Fail closed             | Simulate an unavailable policy service.                            | Protected operation is blocked.                      | Python, Pytest            |
+| 21   | Confused deputy         | Restricted agent requests an operation through a privileged agent. | Delegated operation remains unauthorized.            | Python, LiteLLM           |
+| 22   | Prompt injection        | Feed an agent a document containing malicious instructions.        | Unauthorized export remains blocked.                 | LiteLLM, policy validator |
+| 23   | Human approval          | Require approval before campaign activation.                       | Missing or expired approval blocks activation.       | SQLite, Python            |
+| 24   | TOCTOU                  | Change eligibility after an operation is approved.                 | Execution-time revalidation blocks the operation.    | Python, SQLite            |
+| 25   | Audit logging           | Record identity, action, decision and outcome.                     | Every allowed and denied action has an audit record. | Python JSON logging       |
+| 26   | Egress control          | Allow tools to transmit data only to approved destinations.        | Unapproved destinations are rejected.                | Python URL validation     |
+
+# **Module 3 — Planning, DAG and execution governance**
+
+| Task | Concept                 | Mini project                                                 | Validation                                                | Tech stack             |
+| ---- | ----------------------- | ------------------------------------------------------------ | --------------------------------------------------------- | ---------------------- |
+| 27   | LLM-generated plan      | Ask an LLM to generate a structured three-step workflow.     | Output conforms to the plan schema.                       | LiteLLM, Pydantic      |
+| 28   | DAG validation          | Convert the generated plan into a dependency graph.          | Reject missing dependencies and invalid nodes.            | NetworkX               |
+| 29   | Cycle detection         | Create a workflow containing circular dependencies.          | Detect and reject the cycle.                              | NetworkX               |
+| 30   | Topological sorting     | Execute graph nodes according to their dependencies.         | No node executes before its prerequisites.                | Python graphlib        |
+| 31   | Planner-executor        | Separate LLM plan generation from deterministic execution.   | Invalid plans cannot execute.                             | LiteLLM, Python        |
+| 32   | Runaway execution       | Simulate two agents repeatedly delegating to each other.     | Runtime stops at a predefined step limit.                 | Python                 |
+| 33   | Repeated-call detection | Generate hashes of normalized tool requests.                 | Repeated operations without progress trigger termination. | hashlib                |
+| 34   | Delegation-depth limit  | Simulate recursively nested agent calls.                     | Reject delegation beyond maximum depth.                   | Python                 |
+| 35   | Shared token budget     | Give multiple agents one shared inference budget.            | Combined consumption cannot exceed reserved budget.       | Python, threading lock |
+| 36   | Dynamic replanning      | Generate an alternative plan after a simulated tool failure. | Revised plan passes validation before execution.          | LiteLLM, NetworkX      |
+| 37   | Critical dependency     | Make financial recommendations depend on risk assessment.    | Failed risk assessment blocks recommendation.             | Python DAG             |
+| 38   | Optional dependency     | Simulate failure of a nonessential analytics agent.          | Return explicitly marked partial results.                 | Python                 |
+| 39   | Workflow deadline       | Assign a maximum execution duration.                         | Long-running tasks are cancelled or marked timed out.     | asyncio                |
+| 40   | Execution cost budget   | Estimate inference costs before scheduling model calls.      | Requests exceeding the remaining budget are blocked.      | Python, LiteLLM        |
+
+# **Module 4 — Scalability and performance**
+
+| Task | Concept                  | Mini project                                                   | Validation                                                 | Tech stack          |
+| ---- | ------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------- | ------------------- |
+| 41   | Little's Law             | Calculate concurrent workflows from arrival rate and duration. | Compare estimates against stable simulated workloads.      | Python              |
+| 42   | Workload amplification   | Make one request generate multiple agent and tool calls.       | Measure downstream calls per request.                      | Python counters     |
+| 43   | Rate limiting            | Limit an agent to five requests per second.                    | Excess requests are rejected.                              | Python token bucket |
+| 44   | Concurrency control      | Execute 20 tasks with only three concurrent workers.           | Active execution never exceeds three.                      | asyncio.Semaphore   |
+| 45   | Backpressure             | Create a bounded queue and flood it with requests.             | System rejects or delays excess work safely.               | asyncio.Queue       |
+| 46   | Admission control        | Check available capacity before accepting workflows.           | Saturated workers do not receive additional work.          | Python              |
+| 47   | Noisy-neighbor isolation | Simulate two tenants with different traffic volumes.           | Heavy tenant cannot consume all execution capacity.        | Separate queues     |
+| 48   | Weighted fair scheduling | Assign different processing weights to tenants.                | Work allocation approximately reflects configured weights. | Python scheduler    |
+| 49   | Bulkhead isolation       | Separate finance and marketing worker pools.                   | Finance failures do not exhaust marketing capacity.        | asyncio, executors  |
+| 50   | Stateless orchestration  | Store workflow state outside the orchestrator process.         | A second instance resumes existing work.                   | Python, SQLite      |
+| 51   | Load balancing           | Distribute requests among three simulated workers.             | Requests follow the selected distribution algorithm.       | Python              |
+| 52   | Latency percentiles      | Generate simulated request latencies.                          | Calculate p50, p95 and p99 correctly.                      | NumPy               |
+
+# **Module 5 — Workflow reliability and fault tolerance**
+
+| Task | Concept                | Mini project                                             | Validation                                                   | Tech stack               |
+| ---- | ---------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------ |
+| 53   | Bounded retries        | Create a tool that fails twice before succeeding.        | Retry succeeds within the configured attempt limit.          | Tenacity                 |
+| 54   | Exponential backoff    | Increase waiting intervals after failures.               | Recorded retry delays increase as configured.                | Tenacity                 |
+| 55   | Jitter                 | Randomize retry delays across concurrent agents.         | Retry attempts are not synchronized.                         | Python random            |
+| 56   | Circuit breaker        | Simulate repeated failures from an LLM provider.         | Circuit opens, blocks requests and probes recovery.          | PyBreaker                |
+| 57   | Failure classification | Simulate network, schema and authorization errors.       | Only eligible transient failures are retried.                | Python exceptions        |
+| 58   | Idempotency            | Create a simulated payment tool with an idempotency key. | Repeated requests produce one committed payment.             | SQLite unique constraint |
+| 59   | Execution ledger       | Store attempted operations and their outcomes.           | Previous operation results are recoverable.                  | SQLite                   |
+| 60   | Lost acknowledgment    | Commit a simulated transaction and raise a timeout.      | Reconciliation prevents duplicate transactions.              | Python, SQLite           |
+| 61   | Workflow checkpoint    | Persist completed steps before simulating a crash.       | Restart resumes incomplete steps only.                       | SQLite                   |
+| 62   | Transactional outbox   | Store a business change and event in one transaction.    | Both commit together or both roll back.                      | SQLite transactions      |
+| 63   | Workflow compensation  | Simulate a reservation followed by a failed payment.     | Compensation reverses the simulated reservation.             | Python saga              |
+| 64   | Graceful degradation   | Fail one optional tool in a multi-agent workflow.        | Return safe, explicitly incomplete results.                  | LiteLLM, Python          |
+| 65   | Dead-letter queue      | Repeatedly fail a simulated background task.             | Task moves to failed-message storage after retry exhaustion. | Python Queue             |
+| 66   | Fault injection        | Randomly introduce delays, failures and timeouts.        | Workflow remains within execution and safety limits.         | Pytest, unittest.mock    |
+
+# **Module 6 — Model gateway and cost optimization**
+
+| Task | Concept                   | Mini project                                                           | Validation                                                           | Tech stack             |
+| ---- | ------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------- |
+| 67   | Model gateway             | Create a common function for accessing two LLM providers.              | Both providers return the same application-level response structure. | LiteLLM                |
+| 68   | Provider abstraction      | Implement interchangeable model adapters.                              | Switch provider without modifying agent code.                        | Python adapter pattern |
+| 69   | Tiered routing            | Route classification to a small model and reasoning to a larger model. | Measure quality, latency and cost by route.                          | LiteLLM                |
+| 70   | Confidence escalation     | Escalate uncertain classification results to a stronger model.         | Evaluate escalation against labelled examples.                       | Python, LiteLLM        |
+| 71   | Provider failover         | Simulate an unavailable primary LLM provider.                          | Only approved fallback models are invoked.                           | LiteLLM, mocks         |
+| 72   | Context-window validation | Estimate prompt tokens before inference.                               | Oversized prompts are rejected or reduced.                           | Model tokenizer        |
+| 73   | Token reservation         | Reserve tokens before concurrent inference requests.                   | Parallel calls cannot reserve the same budget twice.                 | Python locks           |
+| 74   | Tenant spending limit     | Assign different cost budgets to two tenants.                          | Exhausted tenant is blocked independently.                           | SQLite                 |
+| 75   | Exact-match caching       | Cache model responses using normalized request hashes.                 | Repeated authorized requests avoid inference.                        | Python, SQLite         |
+| 76   | Semantic caching          | Reuse answers for sufficiently similar queries.                        | Similar queries hit cache; unrelated queries miss.                   | MiniLM, NumPy          |
+| 77   | Permission-aware caching  | Include tenant and authorization context in cached responses.          | Cross-tenant cache reuse is blocked.                                 | Python                 |
+| 78   | Cache invalidation        | Update source data referenced by a cached answer.                      | Outdated response is no longer returned.                             | Python, version keys   |
+| 79   | Model benchmarking        | Execute identical tasks against two models.                            | Compare task accuracy, latency and cost.                             | LiteLLM, Pytest        |
+| 80   | Cost per successful task  | Calculate inference cost including failed attempts.                    | Compare model economics at equivalent quality targets.               | Python                 |
+
+# **Module 7 — RAG and knowledge retrieval**
+
+| Task | Concept                      | Mini project                                                   | Validation                                                 | Tech stack                |
+| ---- | ---------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------- |
+| 81   | Basic RAG                    | Create a question-answering system using five local documents. | Answers are supported by retrieved content.                | MiniLM, NumPy, LiteLLM    |
+| 82   | Document chunking            | Split one document using different chunk sizes.                | Compare retrieval performance across configurations.       | Python                    |
+| 83   | Embeddings                   | Convert ten sentences into vectors.                            | Related sentences rank above unrelated sentences.          | Sentence Transformers     |
+| 84   | Cosine similarity            | Rank document vectors against a query.                         | Confirm expected similarity ordering.                      | NumPy                     |
+| 85   | Keyword retrieval            | Retrieve documents containing exact campaign identifiers.      | Exact identifiers return expected documents.               | Python, BM25              |
+| 86   | Hybrid search                | Combine keyword and vector retrieval scores.                   | Compare retrieval quality with individual methods.         | rank-bm25, NumPy          |
+| 87   | Reranking                    | Rerank the five highest-ranked retrieved documents.            | Measure whether relevant documents move higher.            | Cross-encoder             |
+| 88   | Top-K optimization           | Evaluate retrieval with K equal to 1, 3 and 5.                 | Compare recall, precision and context size.                | Python                    |
+| 89   | Tenant-aware RAG             | Maintain documents for two separate tenants.                   | Query results never cross tenant boundaries.               | NumPy, metadata filters   |
+| 90   | Document ACL                 | Restrict documents to authorized user roles.                   | Unauthorized documents never enter model context.          | Python                    |
+| 91   | Post-retrieval authorization | Revoke permission after a document was indexed.                | Final authorization check removes inaccessible content.    | Python, SQLite            |
+| 92   | Document freshness           | Update a document after initial ingestion.                     | Retrieval returns only the approved current version.       | SQLite, document versions |
+| 93   | Embedding migration          | Generate two versions of a document's embeddings.              | Switch index versions without mixing incompatible vectors. | Sentence Transformers     |
+| 94   | Grounded answer              | Require the LLM to reference retrieved document IDs.           | Reject unknown citations and evaluate claim support.       | LiteLLM, Pydantic         |
+
+# **Module 8 — Memory and context engineering**
+
+| Task | Concept                      | Mini project                                                   | Validation                                                       | Tech stack         |
+| ---- | ---------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------ |
+| 95   | Session memory               | Maintain a short multi-turn conversation.                      | Follow-up queries correctly reference earlier messages.          | Python, LiteLLM    |
+| 96   | Long-term memory             | Store an approved reporting preference in SQLite.              | Preference survives application restart.                         | SQLite             |
+| 97   | Workflow state versus memory | Persist conversation history separately from execution status. | Clearing chat history does not erase workflow progress.          | SQLite             |
+| 98   | Context summarization        | Summarize ten conversation turns into a shorter context.       | Measure token reduction and retained facts.                      | LiteLLM            |
+| 99   | Context hydration            | Retrieve only information relevant to the current task.        | Irrelevant records remain outside model context.                 | Python, embeddings |
+| 100  | Context budgeting            | Allocate tokens to instructions, memory, evidence and output.  | Constructed context stays within configured limits.              | Python tokenizer   |
+| 101  | Structured memory            | Persist an approved business decision as typed data.           | LLM-generated summaries cannot alter the authoritative decision. | Pydantic, SQLite   |
+| 102  | Memory expiration            | Assign expiration timestamps to stored memories.               | Expired information cannot be retrieved.                         | Python datetime    |
+| 103  | Memory isolation             | Create independent memory records for two tenants.             | Cross-tenant memory requests fail.                               | SQLite             |
+| 104  | Memory deletion              | Delete a fact and invalidate dependent cached summaries.       | Future queries do not reuse deleted information.                 | SQLite, Python     |
+
+# **Module 9 — Evaluation and production readiness**
+
+| Task | Concept                   | Mini project                                                           | Validation                                                      | Tech stack          |
+| ---- | ------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------- |
+| 105  | Golden dataset            | Create ten questions with expected routes and tool calls.              | Evaluate actual agent decisions against expected results.       | JSONL, Pytest       |
+| 106  | Routing accuracy          | Run a classifier against labelled requests.                            | Calculate correct and incorrect routing rates.                  | Python              |
+| 107  | Tool selection evaluation | Compare actual tool calls with expected tools.                         | Identify incorrect or unnecessary invocations.                  | Pytest              |
+| 108  | Schema compliance         | Generate valid and malformed LLM responses.                            | Report structured-output validation failures.                   | Pydantic            |
+| 109  | Recall\@K                 | Evaluate retrieved document IDs against relevant IDs.                  | Confirm results against manually calculated examples.           | Python              |
+| 110  | Precision\@K              | Calculate relevant documents within the top K results.                 | Compare retrieval configurations.                               | Python              |
+| 111  | nDCG                      | Evaluate two differently ranked result sets.                           | Better relevance ordering achieves higher nDCG.                 | scikit-learn        |
+| 112  | MRR                       | Measure the rank of the first relevant document.                       | Earlier relevant results achieve higher scores.                 | Python              |
+| 113  | LLM-as-a-Judge            | Ask an evaluator model to score answer quality using a rubric.         | Compare scores against human-labelled examples.                 | LiteLLM, Pydantic   |
+| 114  | Faithfulness              | Generate an answer from a known evidence document.                     | Identify claims unsupported by that evidence.                   | LiteLLM evaluator   |
+| 115  | Hallucination detection   | Generate supported and unsupported sample answers.                     | Measure detection accuracy against labels.                      | LiteLLM, Pytest     |
+| 116  | Hybrid evaluation         | Combine schema checks with an LLM quality judge.                       | Structurally invalid answers fail regardless of semantic score. | Pydantic, LiteLLM   |
+| 117  | Judge calibration         | Compare LLM evaluator scores with human scores.                        | Measure agreement and identify systematic bias.                 | scikit-learn        |
+| 118  | Regression evaluation     | Modify an agent prompt and rerun golden tests.                         | Detect reduced task success.                                    | Pytest              |
+| 119  | Security evaluation       | Run cross-tenant and prompt-injection test cases.                      | Unauthorized actions remain blocked.                            | Pytest              |
+| 120  | Release gate              | Require minimum accuracy and zero observed critical security failures. | Failed evaluation prevents simulated deployment.                | Python, YAML        |
+| 121  | Shadow testing            | Run candidate and baseline agents on identical requests.               | Candidate results are compared without external side effects.   | LiteLLM, mock tools |
+| 122  | Canary deployment         | Route a small percentage of synthetic traffic to a candidate.          | Rollout stops when regression thresholds fail.                  | Python              |
+| 123  | Behavioral drift          | Compare agent outputs before and after a model change.                 | Report measurable degradation on a fixed benchmark.             | Python, LiteLLM     |
+| 124  | Continuous evaluation     | Save failed production-like requests as regression cases.              | New failures appear in subsequent evaluation runs.              | JSONL, Pytest       |
+
+# **Module 10 — MCP and secure tool execution**
+
+| Task | Concept                     | Mini project                                                       | Validation                                         | Tech stack             |
+| ---- | --------------------------- | ------------------------------------------------------------------ | -------------------------------------------------- | ---------------------- |
+| 125  | Basic MCP server            | Expose a calculator tool through MCP.                              | MCP client discovers and invokes the tool.         | FastMCP                |
+| 126  | MCP tool discovery          | Register three tools with different descriptions.                  | Client receives valid tool schemas.                | MCP SDK                |
+| 127  | MCP tool gateway            | Intercept tool calls before forwarding them to a server.           | Unauthorized calls are blocked.                    | Python, MCP SDK        |
+| 128  | Tool allowlist              | Configure approved tools for each agent.                           | Unregistered tools cannot execute.                 | YAML                   |
+| 129  | Tool argument validation    | Define amount and account constraints for a mock transaction tool. | Invalid arguments never reach business logic.      | Pydantic               |
+| 130  | Tool-response validation    | Simulate a tool returning unexpected fields.                       | Invalid or unauthorized output is rejected.        | Pydantic               |
+| 131  | Secure tool discovery       | Expose different tool lists to different identities.               | Restricted agents cannot discover protected tools. | MCP SDK, policy engine |
+| 132  | Workload identity           | Assign signed identities to two agent services.                    | Invalid agent credentials are rejected.            | PyJWT                  |
+| 133  | Approval integrity          | Bind approval to a hash of specific operation parameters.          | Modified parameters invalidate approval.           | hashlib, HMAC          |
+| 134  | Separation of duties        | Prevent a campaign creator from approving their own campaign.      | Same-identity approval is rejected.                | Python RBAC            |
+| 135  | Tamper-evident audit        | Link audit records using cryptographic hashes.                     | Modification breaks chain verification.            | hashlib                |
+| 136  | Compromised LLM containment | Mock an LLM that always requests a prohibited tool.                | Gateway consistently prevents execution.           | Python, Pytest         |
+
+# **Module 11 — Observability and root-cause analysis**
+
+| Task | Concept                | Mini project                                                 | Validation                                              | Tech stack              |
+| ---- | ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------- | ----------------------- |
+| 137  | Distributed tracing    | Trace a supervisor, specialist and tool invocation.          | All spans belong to the same trace.                     | OpenTelemetry           |
+| 138  | Correlation ID         | Propagate a request ID through multiple components.          | Logs can be correlated to one workflow.                 | UUID, Python logging    |
+| 139  | Critical-path analysis | Insert different delays across workflow steps.               | Identify the dependency determining total latency.      | Python timing, NetworkX |
+| 140  | Structured logs        | Capture agent ID, model, latency, outcome and tool name.     | Logs are machine-readable and queryable.                | JSON logging            |
+| 141  | Token usage monitoring | Record token consumption for each inference call.            | Aggregate usage correctly by agent and tenant.          | LiteLLM                 |
+| 142  | TTFT                   | Measure delay before the first streamed model token arrives. | Distinguish initial response delay from total duration. | LiteLLM streaming       |
+| 143  | SLO monitoring         | Simulate a 99% availability objective.                       | Determine when the reliability target is breached.      | Python                  |
+| 144  | Error budget           | Track failures against an availability objective.            | Report remaining permitted failures.                    | Python                  |
+| 145  | Root-cause analysis    | Introduce additional latency into one workflow component.    | Trace comparison identifies the simulated regression.   | OpenTelemetry           |
+| 146  | Agent observability    | Visualize model and tool execution traces.                   | Inspect the complete execution chain.                   | Arize Phoenix           |
+
+# **Module 12 — Deployment, migration and model infrastructure**
+
+| Task | Concept                 | Mini project                                                        | Validation                                                        | Tech stack           |
+| ---- | ----------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------- |
+| 147  | Backward compatibility  | Support V1 and V2 versions of a tool schema.                        | Existing and new agents both work correctly.                      | Pydantic             |
+| 148  | Expand–migrate–contract | Introduce V2, migrate callers and retire V1.                        | No supported caller loses access during migration.                | Python               |
+| 149  | Feature flags           | Toggle an experimental agent capability.                            | Behavior changes without editing core logic.                      | YAML                 |
+| 150  | Automatic rollback      | Simulate a candidate model failing evaluation.                      | Runtime restores the approved baseline version.                   | Python               |
+| 151  | Regional failover       | Simulate primary and secondary regional execution endpoints.        | Requests switch to an approved recovery region.                   | Python               |
+| 152  | Data residency          | Assign tenants to permitted execution regions.                      | Noncompliant regional failover is blocked.                        | Python policy engine |
+| 153  | Disaster recovery       | Persist workflow checkpoints and simulate storage recovery.         | Measure simulated RPO and RTO.                                    | SQLite, backups      |
+| 154  | Self-hosted inference   | Run a small local language model and compare it with a managed API. | Compare quality and measured latency.                             | Ollama, LiteLLM      |
+| 155  | Quantization            | Compare two quantized versions of a small model.                    | Measure model size, quality and inference performance.            | PyTorch or llama.cpp |
+| 156  | Inference batching      | Process individual inputs versus batched inputs.                    | Measure throughput and latency trade-offs.                        | Transformers         |
+| 157  | Hybrid inference        | Route selected tasks locally and others to a managed model.         | Routing respects quality and security constraints.                | LiteLLM, Ollama      |
+| 158  | Model hosting economics | Compare measured workload cost against managed inference pricing.   | Calculate illustrative cost crossover under capacity constraints. | Python               |
+
+# **Module 13 — Technical strategy and leadership**
+
+These projects demonstrate the architectural decision-making skills required at Principal Engineer and Engineering Director levels.
+
+| Task | Concept                        | Mini project                                                                       | Validation                                                        |
+| ---- | ------------------------------ | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| 159  | Build versus buy               | Compare custom orchestration with an existing framework.                           | Score implementation effort, capability and maintenance cost.     |
+| 160  | Platform SDK                   | Extract common routing and authorization functions into a reusable package.        | Two agents integrate without duplicating the controls.            |
+| 161  | Federated architecture         | Connect two different agent runtimes to the same gateway.                          | Both follow identical security contracts.                         |
+| 162  | Platform ROI                   | Compare development and operating costs before and after shared platform adoption. | Calculate benefits using measured or explicitly synthetic inputs. |
+| 163  | Architecture decision record   | Evaluate two model gateway designs and document the decision.                      | Alternatives, trade-offs and constraints are captured.            |
+| 164  | Incident response              | Simulate duplicate financial transactions after a release.                         | Contain execution, reconcile transactions and test remediation.   |
+| 165  | Constrained optimization       | Rank marketing segments and exclude ineligible segments.                           | Highest-scoring eligible segment is recommended.                  |
+| 166  | Platform engineering scorecard | Compare independent agents using common evaluation metrics.                        | Quantify quality, latency, reliability and operating cost.        |
+
+# **Standard structure for every mini project**
+
+I recommend creating a single GitHub repository named `AgenticAIConceptLabs`, with one folder or branch per task.
+
+```
+AgenticAIConceptLabs/
+│
+├── task-001-basic-agent/
+│   ├── README.md
+│   ├── main.py
+│   ├── test_main.py
+│   └── requirements.txt
+│
+├── task-002-supervisor-agent/
+├── task-003-deterministic-routing/
+├── task-004-hybrid-routing/
+│
+└── task-166-platform-scorecard/
+```
+
+Every README should explain the concept, business problem, architecture, implementation, validation criteria, expected output and production considerations.
+
+# **Sample implementation — Task 14: PDP and PEP**
+
+This is an example of how small each project should be.
+
+**Objective:** Demonstrate that an LLM can propose an action, but cannot authorize it.
+
+### **main.py**
+
+```
+from litellm import completionimport osPOLICIES = {    "analyst": {"read"},    "admin": {"read", "export"}}# Policy Decision Pointdef pdp(role, action):    return action in POLICIES.get(role, set())# Protected tooldef execute_tool(action):    return f"Executed: {action}"# Policy Enforcement Pointdef pep(role, action):    if not pdp(role, action):        return "ACCESS DENIED"    return execute_tool(action)def propose_action(query):    response = completion(        model=os.environ["LLM_MODEL"],        messages=[            {                "role": "system",                "content": "Return only read or export."            },
+```
+
+### **test_main.py**
+
+```
+from main import pepfrom unittest.mock import patchdef test_authorized_read():    assert pep("analyst", "read") == "Executed: read"def test_unauthorized_export():    assert pep("analyst", "export") == "ACCESS DENIED"def test_admin_export():    assert pep("admin", "export") == "Executed: export"def test_unknown_action():    assert pep("analyst", "delete") == "ACCESS DENIED"def test_tool_not_executed_on_denial():    with patch("main.execute_tool") as tool:        pep("analyst", "export")        tool.assert_not_called()
+```
+
+### **Run the project**
+
+```
+pip install litellm pytest
+
+pytest -v
+```
+
+For the live demonstration, configure `LLM_MODEL` and the appropriate provider credentials, then run:
+
+```
+python main.py
+```
+
+The expected output when the model proposes export is:
+
+```
+ACCESS DENIED
+```
+
+**Concept validated:** Even if the LLM proposes an unauthorized operation, deterministic policy enforcement prevents the tool from executing.
+
+This is an intentionally simplified demonstration. Production implementations would additionally require verified identity, tenant context, resource-level permissions and independent downstream enforcement. The sample code has not been executed here.
+
+# **Recommended first 25 projects**
+
+Rather than starting with all 166 projects, prioritize the following tasks for interview preparation.
+
+### **Hands-on implementation tracker**
+
+## **0/25**
+
+Task 04 — Hybrid routing
+
+Task 02 — Supervisor and specialist agents
+
+Task 06 — Typed agent contracts
+
+Task 07 — Control plane and execution plane
+
+Task 14 — PDP and PEP
+
+Task 16 — Least agency
+
+Task 17 — Delegated authorization
+
+Task 18 — Tenant isolation
+
+Task 21 — Confused deputy
+
+Task 22 — Prompt injection
+
+Task 24 — TOCTOU
+
+Task 28 — DAG validation
+
+Task 32 — Runaway execution
+
+Task 35 — Shared token budget
+
+Task 43 — Rate limiting
+
+Task 45 — Backpressure
+
+Task 56 — Circuit breaker
+
+Task 58 — Idempotency
+
+Task 60 — Lost acknowledgment
+
+Task 61 — Workflow checkpoint
+
+Task 69 — Tiered model routing
+
+Task 91 — Post-retrieval authorization
+
+Task 116 — Hybrid evaluation
+
+Task 127 — MCP tool gateway
+
+Task 137 — Distributed tracing
+
+&#x20;Copy priority tasks
+
+## **Overall project coverage**
+
+Mini projects
+
+# **166**
+
+Technical modules
+
+# **13**
+
+Priority projects
+
+# **25**
+
+Core code target
+
+# **30–100**
+
+Lines per project where feasible
+
+Projects by domain
+
+Architecture
+
+10
+
+Security
+
+16
+
+Planning and DAG
+
+14
+
+Scalability
+
+12
+
+Reliability
+
+14
+
+Model gateway
+
+14
+
+RAG
+
+14
+
+Memory
+
+10
+
+Evaluation
+
+20
+
+MCP
+
+12
+
+Observability
+
+10
+
+Deployment
+
+12
+
+Technical strategy
+
+8
+
+These are proposed implementation exercises derived from your handbook and the expanded technical glossary, not 166 already implemented or tested projects. Some protocol, infrastructure and model-serving tasks may require additional dependencies or exceed the 100-line target.
+
+**The guiding principle for this repository should be: One concept → One small implementation → One measurable experiment → Automated validation → One interview-ready explanation.**
