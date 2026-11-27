@@ -43,3 +43,54 @@ Open http://localhost:8501. Or enter your API key in the sidebar. The default mo
 ## Recommended next milestones
 
 Real MCP SDK server/client; remote A2A specialist; OIDC and external PDP; Postgres/pgvector; durable queue with idempotency; OpenTelemetry and golden evaluation CI gates; containerized deployment.
+
+## Enterprise integration branch (Phase 2)
+
+Switch to `feature/enterprise-integrations` to use **actual MCP and A2A SDKs**, external OIDC token validation, OPA, pgvector, leased durable jobs, OpenTelemetry and Docker Compose.
+
+```bash
+git switch feature/enterprise-integrations
+cp .env.example .env
+# Edit .env with a strong Postgres password, actual OIDC issuer/JWKS/audience and optional LLM API key.
+docker compose up --build -d
+docker compose ps
+```
+
+- Streamlit: http://localhost:8501 (new **Enterprise integrations** tab)
+- FastAPI gateway: http://localhost:8000/docs
+- Internal-only MCP: `http://mcp:8002/mcp` (not exposed on host)
+- Internal-only A2A specialist: `http://a2a:8003/`
+- OPA: `http://opa:8181` (internal)
+- PostgreSQL: internal network only
+
+**Identity setup is required:** Provide a token from an actual OIDC provider with RS256 signature, audience `aiplatform-api`, a signed `tenant` claim (`alpha` or `beta` for demo data), and space-separated `scope` claims such as `campaign:read risk:read`. Configure the exact issuer and container-reachable JWKS URL in `.env`. This project does not fabricate credentials or ship a default administrator.
+
+Try a read-only request:
+
+```bash
+curl -X POST http://localhost:8000/v1/rag \
+  -H "Authorization: Bearer $OIDC_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"campaign approval"}'
+```
+
+Submit an idempotent background job:
+
+```bash
+curl -X POST http://localhost:8000/v1/jobs \
+  -H "Authorization: Bearer $OIDC_ACCESS_TOKEN" \
+  -H "Idempotency-Key: management-demo-001" \
+  -H "Content-Type: application/json" \
+  -d '{"question":"Summarize campaign conversion"}'
+```
+
+Then call `GET /v1/jobs/{id}` with the same token. Submitting the same request with the same key returns the same job ID. Changing the payload with the same key is rejected.
+
+Run the offline unit and golden evaluation gates:
+
+```bash
+pip install -r requirements-enterprise.txt
+python -m pytest -q tests evals
+```
+
+The CI workflow additionally compiles Python modules and builds a container image. **The source has been committed, but the full Docker stack, external identity provider, MCP/A2A protocol compatibility, and live model calls have not yet been validated.** See [enterprise architecture and limitations](docs/enterprise-architecture.md).

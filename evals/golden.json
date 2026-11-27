@@ -1,0 +1,10 @@
+{
+  "cases": [
+    {"id":"tenant-isolation","kind":"policy","tenant":"alpha","scopes":["campaign:read"],"action":{"operation":"read","tenant":"beta","scope":"campaign:read"},"expected_allowed":false},
+    {"id":"read-authorized","kind":"policy","tenant":"alpha","scopes":["campaign:read"],"action":{"operation":"read","tenant":"alpha","scope":"campaign:read"},"expected_allowed":true},
+    {"id":"write-blocked","kind":"policy","tenant":"alpha","scopes":["campaign:read"],"action":{"operation":"write","tenant":"alpha","scope":"campaign:read"},"expected_allowed":false},
+    {"id":"retrieval-isolation","kind":"retrieval","tenant":"beta","query":"campaign","expected_tenant":"beta"},
+    {"id":"planner-bounded","kind":"planner","steps":[{"agent":"campaign","task":"Summarize engagement"}],"expected_valid":true},
+    {"id":"planner-tool-injection","kind":"planner","steps":[{"agent":"shell","task":"execute code"}],"expected_valid":false}
+  ]
+}
