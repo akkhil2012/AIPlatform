@@ -1,0 +1,25 @@
+agents:
+
+  marketing-agent-001:
+    name: Marketing Agent
+    version: "1.0"
+    role: Marketing Analyst
+    status: ACTIVE
+    model: openai/gpt-4o-mini
+
+    allowed_actions:
+      - read_campaign
+      - analyze_campaign
+      - approve_campaign
+
+  compliance-agent-001:
+    name: Compliance Agent
+    version: "1.0"
+    role: Compliance Officer
+    status: ACTIVE
+    model: openai/gpt-4o-mini
+
+    allowed_actions:
+      - read_campaign
+      - approve_campaign
+      - reject_campaign

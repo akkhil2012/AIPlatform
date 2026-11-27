@@ -1,0 +1,22 @@
+agent_id: campaign_marketing_agent
+
+autonomy:
+  default_decision: DENY
+
+  autonomous_actions:
+    - READ_METRICS
+    - RECOMMEND_SEGMENT
+    - CREATE_DRAFT
+
+  human_approval_required:
+    - ACTIVATE_CAMPAIGN
+    - INCREASE_CAMPAIGN_BUDGET
+
+  prohibited_actions:
+    - DELETE_CUSTOMER
+    - EXPORT_CUSTOMER_PII
+
+  constraints:
+    max_campaign_budget: 5000
+    max_agent_iterations: 10
+    max_delegation_depth: 2

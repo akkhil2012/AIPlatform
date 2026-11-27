@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: agent_admin
+      POSTGRES_PASSWORD: admin_password
+      POSTGRES_DB: agent_registry
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_admin -d agent_registry"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  opa:
+    image: openpolicyagent/opa:1.0.0
+    container_name: opa
+    restart: unless-stopped
+
+    command:
+      - run
+      - --server
+      - --addr=0.0.0.0:8181
+      - --set=decision_logs.console=true
+      - /policy
+
+    ports:
+      - "127.0.0.1:8181:8181"
+
+    volumes:
+      - ./policy:/policy:ro
+
+volumes:
+  postgres_data:

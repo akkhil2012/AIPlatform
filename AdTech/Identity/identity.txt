@@ -1,0 +1,8 @@
+Human identity\
+Agent identity....
+Workload identity\
+Service identity\
+Tool identity\
+Delegated identity\
+Device identity\
+Tenant identity

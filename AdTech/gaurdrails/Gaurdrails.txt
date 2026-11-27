@@ -1,0 +1,39 @@
+Input guardrail, 
+Topic guardrail, 
+Prompt injection guardrail, 
+Output guardrail, 
+PII guardrail, 
+Authorization guardrail, 
+Tool-calling guardrail, 
+Planning guardrail, 
+Delegation guardrail, 
+Execution guardrail, 
+Budget guardrail, 
+Data-access guardrail, 
+Grounding guardrail, 
+Memory guardrail, 
+Human approval guardrail,
+ Business policy guardrail, 
+ Resilience guardrail, 
+ Model guardrail, 
+ Agent autonomy guardrail, 
+ Compliance guardrail
+
+======
+
+1. When do we need groundingGaurdrails?
+  Syncronous grounding Vs Asyncrnous grounding
+Real-time deterministic validation	Numerical facts, business metrics and calculations
+Real-time LLM grounding	High-risk, unstructured factual responses
+Asynchronous LLM evaluation	Low-risk responses, quality monitoring and regression detection
+Offline evaluation	Golden datasets, CI/CD and release gates
+
+Which Grounding implementation to be done for Campaign
+
+2. Agent Autonomous Gaurdrails.
+Level	Autonomy	Example
+L0	Read only	Retrieve campaign metrics
+L1	Recommend	Recommend customer segments
+L2	Execute low-risk actions	Create campaign draft
+L3	Human-approved execution	Activate campaign
+L4	Prohibited for this agent	Delete customer records
