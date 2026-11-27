@@ -1,0 +1,50 @@
+[ ] Day 1: Supervisor and specialist agents
+[ ] Day 2: Secure MCP gateway
+[ ] Day 3: Agent registry and identity
+[ ] Day 4: Secure A2A communication
+[ ] Day 5: Context budgeting
+[ ] Day 6: Centralized model gateway
+[ ] Day 7: LLM budget enforcement
+[ ] Day 8: DAG validation
+[ ] Day 9: Least agency enforcement
+[ ] Day 10: Permission-aware RAG
+[ ] Day 11: Idempotent tool execution
+[ ] Day 12: Durable execution
+[ ] Day 13: Golden dataset evaluation
+[ ] Day 14: Distributed observability
+[ ] Day 15: Tool-calling drift
+
+Priority	Project	What you should implement	Tech stack
+1	Supervisor and specialist agents	Supervisor delegates requests to appropriate specialist agents.	LangGraph, OpenRouter
+2	Secure MCP gateway	Authorize or reject tool calls based on agent permissions.	FastMCP, OPA, JWT
+3	Agent registry and identity	Register agents with unique identities, capabilities, versions and permissions.	FastAPI, PostgreSQL, JWT
+4	Secure A2A communication	Two independent agents communicate using authenticated requests.	A2A SDK, OpenRouter
+5	Context budgeting and optimization	Enforce token limits, prioritize context and summarize conversation history.	LangChain, YAML
+6	Centralized model gateway	Route requests across multiple LLMs with fallback mechanisms.	LiteLLM, FastAPI
+7	LLM budget enforcement	Stop agent execution when token or monetary budgets are exhausted.	Redis, YAML, OpenRouter
+8	DAG validation and runaway prevention	Validate LLM-generated plans, detect cycles and prevent infinite execution.	NetworkX, Pydantic
+9	Least agency enforcement	Classify actions as autonomous, approval-required or prohibited.	YAML, OPA, OpenRouter
+10	Permission-aware multi-tenant RAG	Retrieve documents without leaking information across tenants.	FAISS, PostgreSQL, OPA
+11	Idempotent tool execution	Prevent duplicate transactions during retries.	PostgreSQL, FastAPI
+12	Durable execution and recovery	Resume an interrupted agent workflow from its last checkpoint.	LangGraph, PostgreSQL
+13	Golden dataset and CI/CD evaluation	Prevent deployment when agent quality falls below defined thresholds.	pytest, DeepEval, GitHub Actions
+14	Distributed agent observability	Trace agent delegation, LLM calls, tool execution, latency and costs.	OpenTelemetry, Phoenix
+15	Tool-calling drift detection	Detect incorrect tool selection following model or prompt changes.	OpenRouter, pytest
+
+What should you be able to demonstrate?
+Project	Critical interview scenario
+Supervisor agent	What if a specialist agent becomes unavailable?
+MCP gateway	What if an agent invokes an unauthorized tool?
+Agent registry	How do you manage multiple agent versions?
+A2A	How do you prevent unauthorized agent delegation?
+Context budgeting	What if conversation history exceeds the context window?
+Model gateway	What if the primary LLM provider goes down?
+Budget enforcement	What if an agent consumes $100 unexpectedly?
+DAG validation	What if two agents continuously call each other?
+Least agency	What if an agent initiates a financial transaction?
+Multi-tenant RAG	What if tenant A retrieves tenant B's documents?
+Idempotency	What if a payment succeeds but the tool times out?
+Durable execution	What if the orchestrator crashes midway?
+Evaluation	What if a new model reduces response accuracy?
+Observability	How do you identify the root cause of high p99 latency?
+Tool drift	What if a model starts selecting the wrong tools?
